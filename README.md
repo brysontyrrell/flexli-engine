@@ -2,7 +2,12 @@
 
 Flexli Engine is a flexible, extensible, event-driven workflow engine that allows users to connect APIs from different providers into meaningful integrations without writing, deploying, and maintaining their own code.
 
-If you want to explore this project's user guide you can find it at [https://brysontyrrell.github.io/flexli-engine/](https://brysontyrrell.github.io/flexli-engine/). The API docs are linked at the bottom of the homepage.
+If you want to jump into "What is this?" and "How does it work?" you should explore either:
+
+* **User Guide**: https://brysontyrrell.github.io/flexli-engine
+* **API Docs**: https://brysontyrrell.github.io/flexli-engine/api
+
+## Backstory
 
 This is a project born of many smaller projects started and shelved over the years. That in itself is an interesting story to tell as there are so many of us who do little things on the side that may actually add up to a greater whole if we start piecing them together.
 
