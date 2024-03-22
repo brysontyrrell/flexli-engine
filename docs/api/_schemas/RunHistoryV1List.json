@@ -1,0 +1,120 @@
+{
+    "$defs": {
+        "RunHistoryV1Action": {
+            "properties": {
+                "connector_type": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Connector Type"
+                },
+                "order": {
+                    "title": "Order",
+                    "type": "integer"
+                },
+                "type": {
+                    "title": "Type",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "order",
+                "type"
+            ],
+            "title": "RunHistoryV1Action",
+            "type": "object"
+        },
+        "RunHistoryV1ListItem": {
+            "properties": {
+                "nested_run_id": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Nested Run Id"
+                },
+                "status": {
+                    "title": "Status",
+                    "type": "string"
+                },
+                "reason": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Reason"
+                },
+                "time": {
+                    "title": "Time",
+                    "type": "string"
+                },
+                "state": {
+                    "anyOf": [
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "items": {},
+                            "type": "array"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "State"
+                },
+                "action": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/RunHistoryV1Action"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            },
+            "required": [
+                "status",
+                "time"
+            ],
+            "title": "RunHistoryV1ListItem",
+            "type": "object"
+        }
+    },
+    "properties": {
+        "items": {
+            "items": {
+                "$ref": "#/$defs/RunHistoryV1ListItem"
+            },
+            "title": "Items",
+            "type": "array"
+        }
+    },
+    "required": [
+        "items"
+    ],
+    "title": "RunHistoryV1List",
+    "type": "object"
+}

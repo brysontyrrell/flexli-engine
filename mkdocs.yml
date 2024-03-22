@@ -1,0 +1,37 @@
+site_name: Flexli Engine (Alpha)
+site_description: Flexli Engine (Alpha)
+#site_url: http://localhost
+
+docs_dir: docs/user_guide/
+site_dir: build/docs/
+
+nav:
+  - Home: index.md
+  - Tutorial: tutorial.md
+  - Authoring:
+    - Expressions: authoring/expressions.md
+    - Connectors: authoring/connectors.md
+    - Workflows: authoring/workflows.md
+    - Core Resources: authoring/core.md
+    - Workflow Strategies: authoring/strategies.md
+    - Templates: authoring/templates.md
+#  - API Docs: "./api"
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      use_pygments: true
+      pygments_lang_class: true
+theme:
+  name: material
+  palette:
+    # https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#custom-colors
+    primary: deep-purple

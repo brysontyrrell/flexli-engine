@@ -1,0 +1,63 @@
+{
+    "$defs": {
+        "WorkflowsListItem": {
+            "properties": {
+                "id": {
+                    "title": "Id",
+                    "type": "string"
+                },
+                "name": {
+                    "title": "Name",
+                    "type": "string"
+                },
+                "description": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Description"
+                },
+                "version": {
+                    "title": "Version",
+                    "type": "integer"
+                },
+                "is_release_version": {
+                    "title": "Is Release Version",
+                    "type": "boolean"
+                },
+                "schema_version": {
+                    "title": "Schema Version",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "version",
+                "is_release_version",
+                "schema_version"
+            ],
+            "title": "WorkflowsListItem",
+            "type": "object"
+        }
+    },
+    "properties": {
+        "items": {
+            "items": {
+                "$ref": "#/$defs/WorkflowsListItem"
+            },
+            "title": "Items",
+            "type": "array"
+        }
+    },
+    "required": [
+        "items"
+    ],
+    "title": "WorkflowsList",
+    "type": "object"
+}

@@ -1,0 +1,26 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+aws_lambda_powertools = "*"
+boto3 = "*"
+pytest = "*"
+pytest-cov = "*"
+black = {extras = ["d"], version = "*"}
+aws-xray-sdk = "*"
+mkdocs = "*"
+mkdocs-material = "*"
+
+[packages]
+jmespath = "*"
+jsonschema = "*"
+pydantic = "*"
+python-ulid = "*"
+python-dateutil = "*"
+requests = "*"
+urllib3 = "<2"
+
+[requires]
+python_version = "3.10"

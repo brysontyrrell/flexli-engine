@@ -1,0 +1,213 @@
+{
+    "type": "SlackIncomingWebhook",
+    "name": "Slack Incoming Webhook",
+    "description": "A basic connector for sending messages to Slack Incoming Webhook URLs.",
+    "schema_version": 1,
+    "config": {
+        "host": "hooks.slack.com",
+        "base_path": "services",
+        "default_headers": {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+      }
+    },
+    "actions": [
+        {
+            "type": "PostMessage",
+            "method": "post",
+            "path": "::webhook_path",
+            "body": "::body",
+            "parameters": {
+                "properties": {
+                    "webhook_path": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "title": "PostMessageParams",
+                        "type": "object",
+                        "properties": {
+                            "text": {
+                                "title": "Text",
+                                "maxLength": 2000,
+                                "type": "string"
+                            },
+                            "blocks": {
+                                "title": "Blocks",
+                                "maxItems": 50,
+                                "type": "array",
+                                "items": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/definitions/BlockDivider"
+                                        },
+                                        {
+                                            "$ref": "#/definitions/BlockHeader"
+                                        },
+                                        {
+                                            "$ref": "#/definitions/BlockSection"
+                                        }
+                                    ]
+                                }
+                            },
+                            "mrkdown": {
+                                "title": "Mrkdown",
+                                "default": true,
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "text"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "webhook_path",
+                    "body"
+                ],
+                "additionalProperties": false,
+                "definitions": {
+                    "BlockDivider": {
+                        "title": "BlockDivider",
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "title": "Type",
+                                "enum": [
+                                    "divider"
+                                ],
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "BlockHeaderTextObject": {
+                        "title": "BlockHeaderTextObject",
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "title": "Type",
+                                "enum": [
+                                    "plain_text"
+                                ],
+                                "type": "string"
+                            },
+                            "text": {
+                                "title": "Text",
+                                "minLength": 1,
+                                "maxLength": 150,
+                                "type": "string"
+                            },
+                            "emoji": {
+                                "title": "Emoji",
+                                "default": false,
+                                "type": "boolean"
+                            },
+                            "verbatim": {
+                                "title": "Verbatim",
+                                "default": false,
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "text"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "BlockHeader": {
+                        "title": "BlockHeader",
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "title": "Type",
+                                "enum": [
+                                    "header"
+                                ],
+                                "type": "string"
+                            },
+                            "text": {
+                                "$ref": "#/definitions/BlockHeaderTextObject"
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "text"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "BlockTextObjectTypes": {
+                        "title": "BlockTextObjectTypes",
+                        "description": "An enumeration.",
+                        "enum": [
+                            "mrkdwn",
+                            "plain_text"
+                        ],
+                        "type": "string"
+                    },
+                    "BlockTextObject": {
+                        "title": "BlockTextObject",
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "$ref": "#/definitions/BlockTextObjectTypes"
+                            },
+                            "text": {
+                                "title": "Text",
+                                "minLength": 1,
+                                "maxLength": 2000,
+                                "type": "string"
+                            },
+                            "emoji": {
+                                "title": "Emoji",
+                                "default": false,
+                                "type": "boolean"
+                            },
+                            "verbatim": {
+                                "title": "Verbatim",
+                                "default": false,
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "text"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "BlockSection": {
+                        "title": "BlockSection",
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "title": "Type",
+                                "enum": [
+                                    "section"
+                                ],
+                                "type": "string"
+                            },
+                            "text": {
+                                "$ref": "#/definitions/BlockTextObject"
+                            },
+                            "fields": {
+                                "title": "Fields",
+                                "maxItems": 10,
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/BlockTextObject"
+                                }
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ],
+                        "additionalProperties": false
+                    }
+                }
+            }
+        }
+    ]
+}

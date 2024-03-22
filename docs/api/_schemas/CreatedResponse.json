@@ -1,0 +1,20 @@
+{
+    "properties": {
+        "id": {
+            "description": "The resource identifier.",
+            "title": "Resource ID",
+            "type": "string"
+        },
+        "href": {
+            "description": "The URI to the created resource.",
+            "title": "Resource Location",
+            "type": "string"
+        }
+    },
+    "required": [
+        "id",
+        "href"
+    ],
+    "title": "CreatedResponse",
+    "type": "object"
+}

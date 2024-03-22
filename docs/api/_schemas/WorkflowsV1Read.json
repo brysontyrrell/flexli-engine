@@ -1,0 +1,545 @@
+{
+    "$defs": {
+        "ActionRead": {
+            "properties": {
+                "connector_id": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Connector Id"
+                },
+                "connector_type": {
+                    "title": "Connector Type",
+                    "type": "string"
+                },
+                "type": {
+                    "title": "Type",
+                    "type": "string"
+                },
+                "order": {
+                    "title": "Order",
+                    "type": "integer"
+                },
+                "condition": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Condition"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "parameters": {
+                    "title": "Parameters",
+                    "type": "object"
+                },
+                "transform": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Transform"
+                }
+            },
+            "required": [
+                "connector_type",
+                "type",
+                "order",
+                "parameters"
+            ],
+            "title": "ActionRead",
+            "type": "object"
+        },
+        "BooleanAttribute": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Boolean",
+                    "title": "Type"
+                },
+                "attribute": {
+                    "title": "Attribute",
+                    "type": "string"
+                },
+                "operator": {
+                    "$ref": "#/$defs/BooleanOperators"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "type": "boolean"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "title": "Value"
+                }
+            },
+            "required": [
+                "type",
+                "attribute",
+                "operator",
+                "value"
+            ],
+            "title": "BooleanAttribute",
+            "type": "object"
+        },
+        "BooleanOperators": {
+            "enum": [
+                "eq",
+                "ne"
+            ],
+            "title": "BooleanOperators",
+            "type": "string"
+        },
+        "Condition": {
+            "additionalProperties": false,
+            "properties": {
+                "operator": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/CriteriaOperators"
+                        }
+                    ],
+                    "default": "and"
+                },
+                "criteria": {
+                    "items": {
+                        "$ref": "#/$defs/Criteria"
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "title": "Criteria",
+                    "type": "array"
+                },
+                "on_fail": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/OnFailOptions"
+                        }
+                    ],
+                    "default": "fail"
+                }
+            },
+            "required": [
+                "criteria"
+            ],
+            "title": "Condition",
+            "type": "object"
+        },
+        "Criteria": {
+            "properties": {
+                "operator": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/CriteriaOperators"
+                        }
+                    ],
+                    "default": "and"
+                },
+                "attributes": {
+                    "items": {
+                        "discriminator": {
+                            "mapping": {
+                                "Boolean": "#/$defs/BooleanAttribute",
+                                "Date": "#/$defs/DateAttribute",
+                                "Number": "#/$defs/NumberAttribute",
+                                "String": "#/$defs/StringAttribute",
+                                "Version": "#/$defs/VersionAttribute"
+                            },
+                            "propertyName": "type"
+                        },
+                        "oneOf": [
+                            {
+                                "$ref": "#/$defs/StringAttribute"
+                            },
+                            {
+                                "$ref": "#/$defs/NumberAttribute"
+                            },
+                            {
+                                "$ref": "#/$defs/BooleanAttribute"
+                            },
+                            {
+                                "$ref": "#/$defs/DateAttribute"
+                            },
+                            {
+                                "$ref": "#/$defs/VersionAttribute"
+                            }
+                        ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "title": "Attributes",
+                    "type": "array"
+                }
+            },
+            "required": [
+                "attributes"
+            ],
+            "title": "Criteria",
+            "type": "object"
+        },
+        "CriteriaOperators": {
+            "enum": [
+                "and",
+                "or"
+            ],
+            "title": "CriteriaOperators",
+            "type": "string"
+        },
+        "DateAttribute": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Date",
+                    "title": "Type"
+                },
+                "attribute": {
+                    "title": "Attribute",
+                    "type": "string"
+                },
+                "operator": {
+                    "$ref": "#/$defs/DateOperators"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "format": "date",
+                            "type": "string"
+                        },
+                        {
+                            "format": "date-time",
+                            "type": "string"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "title": "Value"
+                }
+            },
+            "required": [
+                "type",
+                "attribute",
+                "operator",
+                "value"
+            ],
+            "title": "DateAttribute",
+            "type": "object"
+        },
+        "DateOperators": {
+            "enum": [
+                "before",
+                "after"
+            ],
+            "title": "DateOperators",
+            "type": "string"
+        },
+        "NumberAttribute": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Number",
+                    "title": "Type"
+                },
+                "attribute": {
+                    "title": "Attribute",
+                    "type": "string"
+                },
+                "operator": {
+                    "$ref": "#/$defs/NumberOperators"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "title": "Value"
+                }
+            },
+            "required": [
+                "type",
+                "attribute",
+                "operator",
+                "value"
+            ],
+            "title": "NumberAttribute",
+            "type": "object"
+        },
+        "NumberOperators": {
+            "enum": [
+                "eq",
+                "ne",
+                "lt",
+                "lte",
+                "gt",
+                "gte"
+            ],
+            "title": "NumberOperators",
+            "type": "string"
+        },
+        "OnFailOptions": {
+            "enum": [
+                "skip",
+                "stop",
+                "fail"
+            ],
+            "title": "OnFailOptions",
+            "type": "string"
+        },
+        "SourceRead": {
+            "properties": {
+                "connector_id": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Connector Id"
+                },
+                "connector_type": {
+                    "title": "Connector Type",
+                    "type": "string"
+                },
+                "type": {
+                    "title": "Type",
+                    "type": "string"
+                },
+                "condition": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Condition"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "transform": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Transform"
+                }
+            },
+            "required": [
+                "connector_type",
+                "type"
+            ],
+            "title": "SourceRead",
+            "type": "object"
+        },
+        "StringAttribute": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "String",
+                    "title": "Type"
+                },
+                "attribute": {
+                    "title": "Attribute",
+                    "type": "string"
+                },
+                "operator": {
+                    "$ref": "#/$defs/StringOperators"
+                },
+                "value": {
+                    "title": "Value",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type",
+                "attribute",
+                "operator",
+                "value"
+            ],
+            "title": "StringAttribute",
+            "type": "object"
+        },
+        "StringOperators": {
+            "enum": [
+                "eq",
+                "ne",
+                "lt",
+                "lte",
+                "gt",
+                "gte",
+                "starts_with"
+            ],
+            "title": "StringOperators",
+            "type": "string"
+        },
+        "VersionAttribute": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Version",
+                    "title": "Type"
+                },
+                "attribute": {
+                    "title": "Attribute",
+                    "type": "string"
+                },
+                "operator": {
+                    "$ref": "#/$defs/VersionOperators"
+                },
+                "value": {
+                    "title": "Value",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type",
+                "attribute",
+                "operator",
+                "value"
+            ],
+            "title": "VersionAttribute",
+            "type": "object"
+        },
+        "VersionOperators": {
+            "enum": [
+                "eq",
+                "ne",
+                "lt",
+                "lte",
+                "gt",
+                "gte"
+            ],
+            "title": "VersionOperators",
+            "type": "string"
+        }
+    },
+    "properties": {
+        "id": {
+            "title": "Id",
+            "type": "string"
+        },
+        "name": {
+            "title": "Name",
+            "type": "string"
+        },
+        "description": {
+            "anyOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": null,
+            "title": "Description"
+        },
+        "version": {
+            "title": "Version",
+            "type": "integer"
+        },
+        "schema_version": {
+            "title": "Schema Version",
+            "type": "integer"
+        },
+        "is_release_version": {
+            "title": "Is Release Version",
+            "type": "boolean"
+        },
+        "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+        },
+        "source": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/SourceRead"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": null
+        },
+        "actions": {
+            "items": {
+                "$ref": "#/$defs/ActionRead"
+            },
+            "title": "Actions",
+            "type": "array"
+        }
+    },
+    "required": [
+        "id",
+        "name",
+        "version",
+        "schema_version",
+        "is_release_version",
+        "enabled",
+        "actions"
+    ],
+    "title": "WorkflowsV1Read",
+    "type": "object"
+}

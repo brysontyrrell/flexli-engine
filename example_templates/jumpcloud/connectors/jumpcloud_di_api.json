@@ -1,0 +1,62 @@
+{
+    "type": "DirectoryInsightsApi",
+    "name": "JumpCloud Directory Insights API",
+    "description": "A connector for JumpCloud Directory Insights API actions.",
+    "schema_version": 1,
+    "config": {
+        "host": "api.jumpcloud.com",
+        "base_path": "insights/directory",
+        "credentials": {
+            "type": "ApiKey",
+            "api_key": "{{JumpCloud API Key}}",
+            "api_key_header": "x-api-key"
+        },
+        "default_headers": {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+      }
+    },
+    "actions": [
+        {
+            "type": "QueryEvents",
+            "name": "Query Directory Insights events",
+            "method": "post",
+            "path": "v1/events",
+            "body": "::",
+            "parameters": {
+                "properties": {
+                    "start_time": {
+                        "type": "string"
+                    },
+                    "service": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "all",
+                                "directory",
+                                "ldap",
+                                "mdm",
+                                "password_manager",
+                                "radius",
+                                "software",
+                                "sso",
+                                "systems"
+                            ]
+                        }
+                    },
+                    "fields": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "search_term": {
+                        "type": "object"
+                    }
+                },
+                "required": ["start_time", "service"]
+            }
+        }
+    ]
+}

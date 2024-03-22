@@ -1,0 +1,59 @@
+{
+    "additionalProperties": true,
+    "properties": {
+        "id": {
+            "description": "A request identifier used for troubleshooting",
+            "examples": [
+                "20554228-97b1-46ce-9236-a70dc58f8b6e"
+            ],
+            "title": "Request ID",
+            "type": "string"
+        },
+        "error_code": {
+            "description": "The error code",
+            "examples": [
+                "ValidationError"
+            ],
+            "title": "Error code",
+            "type": "string"
+        },
+        "description": {
+            "description": "A description of the error",
+            "examples": [
+                "The request body failed validation."
+            ],
+            "title": "Description",
+            "type": "string"
+        },
+        "details": {
+            "anyOf": [
+                {
+                    "type": "object"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "description": "Optional error specific properties",
+            "examples": [
+                {
+                    "validation_errors": [
+                        {
+                            "description": "'id' is a required property",
+                            "path": "$"
+                        }
+                    ]
+                }
+            ],
+            "title": "Details"
+        }
+    },
+    "required": [
+        "id",
+        "error_code",
+        "description",
+        "details"
+    ],
+    "title": "ApiErrorResponse",
+    "type": "object"
+}

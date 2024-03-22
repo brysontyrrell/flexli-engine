@@ -1,0 +1,280 @@
+{
+    "title": "ConnectorV1Create",
+    "type": "object",
+    "properties": {
+        "type": {
+            "title": "Type",
+            "type": "string"
+        },
+        "name": {
+            "title": "Name",
+            "type": "string"
+        },
+        "description": {
+            "title": "Description",
+            "type": "string"
+        },
+        "schema_version": {
+            "title": "Schema Version",
+            "enum": [
+                1
+            ],
+            "type": "integer"
+        },
+        "config": {
+            "$ref": "#/definitions/ConnectorV1Config"
+        },
+        "events": {
+            "title": "Events",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/ConnectorV1Event"
+            }
+        },
+        "actions": {
+            "title": "Actions",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/ConnectorV1Action"
+            }
+        }
+    },
+    "required": [
+        "type",
+        "name",
+        "description",
+        "schema_version",
+        "config"
+    ],
+    "additionalProperties": false,
+    "definitions": {
+        "OAuth2ClientCredentials": {
+            "title": "OAuth2ClientCredentials",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "title": "Type",
+                    "enum": [
+                        "OAuth2Client"
+                    ],
+                    "type": "string"
+                },
+                "client_id": {
+                    "title": "Client Id",
+                    "type": "string"
+                },
+                "client_secret": {
+                    "title": "Client Secret",
+                    "type": "string"
+                },
+                "token_url": {
+                    "title": "Token Url",
+                    "type": "string"
+                },
+                "basic_auth": {
+                    "title": "Basic Auth",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "type",
+                "client_id",
+                "client_secret",
+                "token_url",
+                "basic_auth"
+            ],
+            "additionalProperties": false
+        },
+        "BearerTokenCredentials": {
+            "title": "BearerTokenCredentials",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "title": "Type",
+                    "enum": [
+                        "BearerToken"
+                    ],
+                    "type": "string"
+                },
+                "bearer_token": {
+                    "title": "Bearer Token",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type",
+                "bearer_token"
+            ],
+            "additionalProperties": false
+        },
+        "ApiKeyCredentials": {
+            "title": "ApiKeyCredentials",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "title": "Type",
+                    "enum": [
+                        "ApiKey"
+                    ],
+                    "type": "string"
+                },
+                "api_key": {
+                    "title": "Api Key",
+                    "type": "string"
+                },
+                "api_key_header": {
+                    "title": "Api Key Header",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type",
+                "api_key",
+                "api_key_header"
+            ],
+            "additionalProperties": false
+        },
+        "ConnectorV1Config": {
+            "title": "ConnectorV1Config",
+            "type": "object",
+            "properties": {
+                "host": {
+                    "title": "Host",
+                    "type": "string"
+                },
+                "base_path": {
+                    "title": "Base Path",
+                    "type": "string"
+                },
+                "credentials": {
+                    "title": "Credentials",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/OAuth2ClientCredentials"
+                        },
+                        {
+                            "$ref": "#/definitions/BearerTokenCredentials"
+                        },
+                        {
+                            "$ref": "#/definitions/ApiKeyCredentials"
+                        }
+                    ]
+                },
+                "default_headers": {
+                    "title": "Default Headers",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "host"
+            ],
+            "additionalProperties": false
+        },
+        "ConnectorV1Event": {
+            "title": "ConnectorV1Event",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "title": "Type",
+                    "type": "string"
+                },
+                "name": {
+                    "title": "Name",
+                    "type": "string"
+                },
+                "description": {
+                    "title": "Description",
+                    "type": "string"
+                },
+                "schema": {
+                    "title": "Schema",
+                    "type": "object"
+                }
+            },
+            "required": [
+                "type",
+                "name",
+                "description",
+                "schema"
+            ],
+            "additionalProperties": false
+        },
+        "HttpMethods": {
+            "title": "HttpMethods",
+            "description": "An enumeration.",
+            "enum": [
+                "post",
+                "get",
+                "put",
+                "patch",
+                "delete",
+                "head",
+                "options"
+            ],
+            "type": "string"
+        },
+        "ConnectorV1Action": {
+            "title": "ConnectorV1Action",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "title": "Type",
+                    "type": "string"
+                },
+                "name": {
+                    "title": "Name",
+                    "type": "string"
+                },
+                "description": {
+                    "title": "Description",
+                    "type": "string"
+                },
+                "method": {
+                    "$ref": "#/definitions/HttpMethods"
+                },
+                "path": {
+                    "title": "Path",
+                    "type": "string"
+                },
+                "headers": {
+                    "title": "Headers",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "query": {
+                    "title": "Query",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "body": {
+                    "title": "Body",
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "object"
+                        }
+                    ]
+                },
+                "parameters": {
+                    "title": "Parameters",
+                    "type": "object"
+                }
+            },
+            "required": [
+                "type",
+                "method",
+                "path"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

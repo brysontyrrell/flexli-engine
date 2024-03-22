@@ -1,0 +1,110 @@
+{
+  "name": "JumpCloud Temporary Admin Privileges",
+  "description": "This workflow will take a system user ID from the input and elevate that user to admin if they are not already. After 60 seconds the user will be set back to a standard account. Uses a custom event source from another workflow.",
+  "schema_version": 1,
+  "source": {
+      "type": "Flexli:CoreV1:CustomEvent",
+      "parameters": {
+          "event_type": "JumpCloudSystemAddedToGroup"
+      },
+      "transform": {
+          "system_id": "::association.connection.to.object_id"
+      }
+  },
+  "actions": [
+    {
+        "connector_id": "{{JumpCloud Connector ID}}",
+        "type": "GetSystemUsersById",
+        "order": 1,
+        "parameters": {
+            "system_id": "::system_id"
+        },
+        "transform": {
+            "user_id": "::[?type=='user'].id | [0]"
+        }
+    },
+    {
+      "connector_id": "{{JumpCloud Connector ID}}",
+      "order": 2,
+      "type": "GetUserById",
+      "description": "Get User Details",
+      "parameters": {
+        "user_id": "::user_id"
+      },
+      "transform": {
+        "user_name": "::username",
+        "user_current_sudo": "::sudo",
+        "user_current_passwordless_sudo": "::passwordless_sudo"
+      }
+    },
+    {
+      "connector_id": "{{JumpCloud Connector ID}}",
+      "order": 3,
+      "type": "ManageUserElevatedPermissions",
+      "description": "Elevate the user to admin.",
+      "parameters": {
+        "user_id": "::user_id",
+        "sudo": true,
+        "passwordless_sudo": "::user_current_passwordless_sudo"
+      }
+    },
+    {
+      "connector_id": "{{Slack Connector ID}}",
+      "type": "PostMessage",
+      "order": 4,
+      "parameters": {
+        "body": {
+          "text": "{user_name} has been granted temporary admin privileges for 60 seconds."
+        },
+        "webhook_path": "{{Slack Webhook Path}}"
+      },
+      "variables": {
+        "user_name": "::user_name"
+      }
+    },
+    {
+      "connector_id": "{{JumpCloud Connector ID}}",
+      "order": 5,
+      "type": "ManageSystemGroupMembership",
+      "description": "Remove the system from the admin group.",
+      "parameters": {
+        "group_id": "{{System Group ID}}",
+        "operation": "remove",
+        "system_id": "::system_id"
+      }
+    },
+    {
+      "type": "Flexli:CoreV1:Wait",
+      "order": 6,
+      "description": "Elevated permissions time.",
+      "parameters": {
+        "seconds": 60
+      }
+    },
+    {
+      "connector_id": "{{JumpCloud Connector ID}}",
+      "order": 7,
+      "type": "ManageUserElevatedPermissions",
+      "description": "Revoke admin from user.",
+      "parameters": {
+        "user_id": "::user_id",
+        "sudo": false,
+        "passwordless_sudo": "::user_current_passwordless_sudo"
+      }
+    },
+    {
+      "connector_id": "{{Slack Connector ID}}",
+      "type": "PostMessage",
+      "order": 8,
+      "parameters": {
+        "body": {
+          "text": "{user_name}'s temporary admin privileges have been revoked."
+        },
+        "webhook_path": "{{Slack Webhook Path}}"
+      },
+      "variables": {
+        "user_name": "::user_name"
+      }
+    }
+  ]
+}

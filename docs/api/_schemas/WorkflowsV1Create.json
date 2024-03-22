@@ -1,0 +1,1796 @@
+{
+    "$defs": {
+        "BooleanAttribute": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Boolean",
+                    "title": "Type"
+                },
+                "attribute": {
+                    "title": "Attribute",
+                    "type": "string"
+                },
+                "operator": {
+                    "$ref": "#/$defs/BooleanOperators"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "type": "boolean"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "title": "Value"
+                }
+            },
+            "required": [
+                "type",
+                "attribute",
+                "operator",
+                "value"
+            ],
+            "title": "BooleanAttribute",
+            "type": "object"
+        },
+        "BooleanOperators": {
+            "enum": [
+                "eq",
+                "ne"
+            ],
+            "title": "BooleanOperators",
+            "type": "string"
+        },
+        "Condition": {
+            "additionalProperties": false,
+            "properties": {
+                "operator": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/CriteriaOperators"
+                        }
+                    ],
+                    "default": "and"
+                },
+                "criteria": {
+                    "items": {
+                        "$ref": "#/$defs/Criteria"
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "title": "Criteria",
+                    "type": "array"
+                },
+                "on_fail": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/OnFailOptions"
+                        }
+                    ],
+                    "default": "fail"
+                }
+            },
+            "required": [
+                "criteria"
+            ],
+            "title": "Condition",
+            "type": "object"
+        },
+        "CoreV1Branch": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Flexli:CoreV1:Branch",
+                    "title": "Type"
+                },
+                "description": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Description"
+                },
+                "order": {
+                    "exclusiveMaximum": 101,
+                    "exclusiveMinimum": 0,
+                    "title": "Order",
+                    "type": "integer"
+                },
+                "condition": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Condition"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "parameters": {
+                    "$ref": "#/$defs/CoreV1BranchParams"
+                },
+                "variables": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Variables"
+                },
+                "transform": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Transform"
+                }
+            },
+            "required": [
+                "type",
+                "order",
+                "parameters"
+            ],
+            "title": "CoreV1Branch",
+            "type": "object"
+        },
+        "CoreV1BranchItem": {
+            "additionalProperties": false,
+            "properties": {
+                "description": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Description"
+                },
+                "order": {
+                    "exclusiveMaximum": 101,
+                    "exclusiveMinimum": 0,
+                    "title": "Order",
+                    "type": "integer"
+                },
+                "condition": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Condition"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "actions": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "discriminator": {
+                                    "mapping": {
+                                        "Flexli:CoreV1:CustomEvent": "#/$defs/CoreV1CustomEvent",
+                                        "Flexli:CoreV1:Iterator": "#/$defs/CoreV1Iterator",
+                                        "Flexli:CoreV1:RunWorkflow": "#/$defs/CoreV1RunWorkflow",
+                                        "Flexli:CoreV1:Transform": "#/$defs/CoreV1Transform",
+                                        "Flexli:CoreV1:Wait": "#/$defs/CoreV1Wait"
+                                    },
+                                    "propertyName": "type"
+                                },
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/$defs/CoreV1Transform"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/CoreV1Wait"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/CoreV1RunWorkflow"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/CoreV1CustomEvent"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/CoreV1Iterator"
+                                    }
+                                ]
+                            },
+                            {
+                                "$ref": "#/$defs/WorkflowsV1CreateAction"
+                            }
+                        ]
+                    },
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "title": "Actions",
+                    "type": "array"
+                }
+            },
+            "required": [
+                "order",
+                "actions"
+            ],
+            "title": "CoreV1BranchItem",
+            "type": "object"
+        },
+        "CoreV1BranchParams": {
+            "additionalProperties": false,
+            "properties": {
+                "branches": {
+                    "items": {
+                        "$ref": "#/$defs/CoreV1BranchItem"
+                    },
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "title": "Branches",
+                    "type": "array"
+                }
+            },
+            "required": [
+                "branches"
+            ],
+            "title": "CoreV1BranchParams",
+            "type": "object"
+        },
+        "CoreV1CustomEvent": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Flexli:CoreV1:CustomEvent",
+                    "title": "Type"
+                },
+                "description": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Description"
+                },
+                "order": {
+                    "exclusiveMaximum": 101,
+                    "exclusiveMinimum": 0,
+                    "title": "Order",
+                    "type": "integer"
+                },
+                "condition": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Condition"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "parameters": {
+                    "$ref": "#/$defs/CoreV1CustomEventParams"
+                },
+                "variables": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Variables"
+                },
+                "transform": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Transform"
+                }
+            },
+            "required": [
+                "type",
+                "order",
+                "parameters"
+            ],
+            "title": "CoreV1CustomEvent",
+            "type": "object"
+        },
+        "CoreV1CustomEventParams": {
+            "additionalProperties": false,
+            "properties": {
+                "event_type": {
+                    "title": "Event Type",
+                    "type": "string"
+                },
+                "content_type": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Content Type"
+                },
+                "body": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Body"
+                }
+            },
+            "required": [
+                "event_type"
+            ],
+            "title": "CoreV1CustomEventParams",
+            "type": "object"
+        },
+        "CoreV1CustomEventSource": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Flexli:CoreV1:CustomEvent",
+                    "title": "Type"
+                },
+                "condition": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Condition"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "transform": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Transform"
+                },
+                "parameters": {
+                    "$ref": "#/$defs/CoreV1CustomEventSourceParams"
+                }
+            },
+            "required": [
+                "type",
+                "parameters"
+            ],
+            "title": "CoreV1CustomEventSource",
+            "type": "object"
+        },
+        "CoreV1CustomEventSourceParams": {
+            "additionalProperties": false,
+            "properties": {
+                "event_type": {
+                    "title": "Event Type",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "event_type"
+            ],
+            "title": "CoreV1CustomEventSourceParams",
+            "type": "object"
+        },
+        "CoreV1Iterator": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Flexli:CoreV1:Iterator",
+                    "title": "Type"
+                },
+                "description": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Description"
+                },
+                "order": {
+                    "exclusiveMaximum": 101,
+                    "exclusiveMinimum": 0,
+                    "title": "Order",
+                    "type": "integer"
+                },
+                "condition": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Condition"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "parameters": {
+                    "$ref": "#/$defs/CoreV1IteratorParams"
+                },
+                "variables": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Variables"
+                }
+            },
+            "required": [
+                "type",
+                "order",
+                "parameters"
+            ],
+            "title": "CoreV1Iterator",
+            "type": "object"
+        },
+        "CoreV1IteratorParams": {
+            "additionalProperties": false,
+            "properties": {
+                "array_path": {
+                    "title": "Array Path",
+                    "type": "string"
+                },
+                "iterator_input": {
+                    "anyOf": [
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Iterator Input"
+                },
+                "actions": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "discriminator": {
+                                    "mapping": {
+                                        "Flexli:CoreV1:CustomEvent": "#/$defs/CoreV1CustomEvent",
+                                        "Flexli:CoreV1:RunWorkflow": "#/$defs/CoreV1RunWorkflow",
+                                        "Flexli:CoreV1:Transform": "#/$defs/CoreV1Transform",
+                                        "Flexli:CoreV1:Wait": "#/$defs/CoreV1Wait"
+                                    },
+                                    "propertyName": "type"
+                                },
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/$defs/CoreV1Transform"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/CoreV1Wait"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/CoreV1RunWorkflow"
+                                    },
+                                    {
+                                        "$ref": "#/$defs/CoreV1CustomEvent"
+                                    }
+                                ]
+                            },
+                            {
+                                "$ref": "#/$defs/WorkflowsV1CreateAction"
+                            }
+                        ]
+                    },
+                    "maxItems": 100,
+                    "minItems": 1,
+                    "title": "Actions",
+                    "type": "array"
+                }
+            },
+            "required": [
+                "array_path",
+                "actions"
+            ],
+            "title": "CoreV1IteratorParams",
+            "type": "object"
+        },
+        "CoreV1RunWorkflow": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Flexli:CoreV1:RunWorkflow",
+                    "title": "Type"
+                },
+                "description": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Description"
+                },
+                "order": {
+                    "exclusiveMaximum": 101,
+                    "exclusiveMinimum": 0,
+                    "title": "Order",
+                    "type": "integer"
+                },
+                "condition": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Condition"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "wait_for_callback": {
+                    "default": true,
+                    "title": "Wait For Callback",
+                    "type": "boolean"
+                },
+                "parameters": {
+                    "$ref": "#/$defs/CoreV1RunWorkflowParams"
+                },
+                "variables": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Variables"
+                },
+                "transform": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Transform"
+                }
+            },
+            "required": [
+                "type",
+                "order",
+                "parameters"
+            ],
+            "title": "CoreV1RunWorkflow",
+            "type": "object"
+        },
+        "CoreV1RunWorkflowParams": {
+            "additionalProperties": false,
+            "properties": {
+                "workflow_id": {
+                    "title": "Workflow Id",
+                    "type": "string"
+                },
+                "workflow_version": {
+                    "title": "Workflow Version",
+                    "type": "integer"
+                },
+                "workflow_input": {
+                    "title": "Workflow Input",
+                    "type": "object"
+                }
+            },
+            "required": [
+                "workflow_id",
+                "workflow_version",
+                "workflow_input"
+            ],
+            "title": "CoreV1RunWorkflowParams",
+            "type": "object"
+        },
+        "CoreV1Schedule": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Flexli:CoreV1:Schedule",
+                    "title": "Type"
+                },
+                "parameters": {
+                    "$ref": "#/$defs/CoreV1ScheduleParams"
+                }
+            },
+            "required": [
+                "type",
+                "parameters"
+            ],
+            "title": "CoreV1Schedule",
+            "type": "object"
+        },
+        "CoreV1ScheduleParams": {
+            "additionalProperties": false,
+            "properties": {
+                "cron": {
+                    "anyOf": [
+                        {
+                            "pattern": "^(?:([0-9]|[1-5][0-9])|[*]) (?:[0-9]|1[0-9]|2[0-3]|[*]) (?:[1-9]|[12][0-9]|3[01]|[*]) (?:[1-9]|1[0-2]|[*]) (?:[1-7]|[*?])$",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Cron"
+                },
+                "rate": {
+                    "anyOf": [
+                        {
+                            "pattern": "^\\d+ (?:minute|minutes|hour|hours|day|days)$",
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Rate"
+                }
+            },
+            "title": "CoreV1ScheduleParams",
+            "type": "object"
+        },
+        "CoreV1Transform": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Flexli:CoreV1:Transform",
+                    "title": "Type"
+                },
+                "description": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Description"
+                },
+                "order": {
+                    "exclusiveMaximum": 101,
+                    "exclusiveMinimum": 0,
+                    "title": "Order",
+                    "type": "integer"
+                },
+                "condition": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Condition"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "variables": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Variables"
+                },
+                "transform": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Transform"
+                }
+            },
+            "required": [
+                "type",
+                "order"
+            ],
+            "title": "CoreV1Transform",
+            "type": "object"
+        },
+        "CoreV1Wait": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Flexli:CoreV1:Wait",
+                    "title": "Type"
+                },
+                "description": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Description"
+                },
+                "order": {
+                    "exclusiveMaximum": 101,
+                    "exclusiveMinimum": 0,
+                    "title": "Order",
+                    "type": "integer"
+                },
+                "condition": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Condition"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "parameters": {
+                    "$ref": "#/$defs/CoreV1WaitParams"
+                },
+                "variables": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Variables"
+                },
+                "transform": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Transform"
+                }
+            },
+            "required": [
+                "type",
+                "order",
+                "parameters"
+            ],
+            "title": "CoreV1Wait",
+            "type": "object"
+        },
+        "CoreV1WaitParams": {
+            "additionalProperties": false,
+            "properties": {
+                "seconds": {
+                    "title": "Seconds",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "seconds"
+            ],
+            "title": "CoreV1WaitParams",
+            "type": "object"
+        },
+        "Criteria": {
+            "properties": {
+                "operator": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/CriteriaOperators"
+                        }
+                    ],
+                    "default": "and"
+                },
+                "attributes": {
+                    "items": {
+                        "discriminator": {
+                            "mapping": {
+                                "Boolean": "#/$defs/BooleanAttribute",
+                                "Date": "#/$defs/DateAttribute",
+                                "Number": "#/$defs/NumberAttribute",
+                                "String": "#/$defs/StringAttribute",
+                                "Version": "#/$defs/VersionAttribute"
+                            },
+                            "propertyName": "type"
+                        },
+                        "oneOf": [
+                            {
+                                "$ref": "#/$defs/StringAttribute"
+                            },
+                            {
+                                "$ref": "#/$defs/NumberAttribute"
+                            },
+                            {
+                                "$ref": "#/$defs/BooleanAttribute"
+                            },
+                            {
+                                "$ref": "#/$defs/DateAttribute"
+                            },
+                            {
+                                "$ref": "#/$defs/VersionAttribute"
+                            }
+                        ]
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "title": "Attributes",
+                    "type": "array"
+                }
+            },
+            "required": [
+                "attributes"
+            ],
+            "title": "Criteria",
+            "type": "object"
+        },
+        "CriteriaOperators": {
+            "enum": [
+                "and",
+                "or"
+            ],
+            "title": "CriteriaOperators",
+            "type": "string"
+        },
+        "DateAttribute": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Date",
+                    "title": "Type"
+                },
+                "attribute": {
+                    "title": "Attribute",
+                    "type": "string"
+                },
+                "operator": {
+                    "$ref": "#/$defs/DateOperators"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "format": "date",
+                            "type": "string"
+                        },
+                        {
+                            "format": "date-time",
+                            "type": "string"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "title": "Value"
+                }
+            },
+            "required": [
+                "type",
+                "attribute",
+                "operator",
+                "value"
+            ],
+            "title": "DateAttribute",
+            "type": "object"
+        },
+        "DateOperators": {
+            "enum": [
+                "before",
+                "after"
+            ],
+            "title": "DateOperators",
+            "type": "string"
+        },
+        "NumberAttribute": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Number",
+                    "title": "Type"
+                },
+                "attribute": {
+                    "title": "Attribute",
+                    "type": "string"
+                },
+                "operator": {
+                    "$ref": "#/$defs/NumberOperators"
+                },
+                "value": {
+                    "anyOf": [
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "title": "Value"
+                }
+            },
+            "required": [
+                "type",
+                "attribute",
+                "operator",
+                "value"
+            ],
+            "title": "NumberAttribute",
+            "type": "object"
+        },
+        "NumberOperators": {
+            "enum": [
+                "eq",
+                "ne",
+                "lt",
+                "lte",
+                "gt",
+                "gte"
+            ],
+            "title": "NumberOperators",
+            "type": "string"
+        },
+        "OnFailOptions": {
+            "enum": [
+                "skip",
+                "stop",
+                "fail"
+            ],
+            "title": "OnFailOptions",
+            "type": "string"
+        },
+        "StringAttribute": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "String",
+                    "title": "Type"
+                },
+                "attribute": {
+                    "title": "Attribute",
+                    "type": "string"
+                },
+                "operator": {
+                    "$ref": "#/$defs/StringOperators"
+                },
+                "value": {
+                    "title": "Value",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type",
+                "attribute",
+                "operator",
+                "value"
+            ],
+            "title": "StringAttribute",
+            "type": "object"
+        },
+        "StringOperators": {
+            "enum": [
+                "eq",
+                "ne",
+                "lt",
+                "lte",
+                "gt",
+                "gte",
+                "starts_with"
+            ],
+            "title": "StringOperators",
+            "type": "string"
+        },
+        "VersionAttribute": {
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "const": "Version",
+                    "title": "Type"
+                },
+                "attribute": {
+                    "title": "Attribute",
+                    "type": "string"
+                },
+                "operator": {
+                    "$ref": "#/$defs/VersionOperators"
+                },
+                "value": {
+                    "title": "Value",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type",
+                "attribute",
+                "operator",
+                "value"
+            ],
+            "title": "VersionAttribute",
+            "type": "object"
+        },
+        "VersionOperators": {
+            "enum": [
+                "eq",
+                "ne",
+                "lt",
+                "lte",
+                "gt",
+                "gte"
+            ],
+            "title": "VersionOperators",
+            "type": "string"
+        },
+        "WorkflowV1CreateActionOnError": {
+            "additionalProperties": false,
+            "properties": {
+                "max_retries": {
+                    "exclusiveMaximum": 11,
+                    "exclusiveMinimum": 0,
+                    "title": "Max Retries",
+                    "type": "integer"
+                },
+                "retry_on": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Retry On"
+                },
+                "on_fail": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/OnFailOptions"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "backoff": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/WorkflowV1CreateActionOnErrorBackoff"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            },
+            "required": [
+                "max_retries"
+            ],
+            "title": "WorkflowV1CreateActionOnError",
+            "type": "object"
+        },
+        "WorkflowV1CreateActionOnErrorBackoff": {
+            "additionalProperties": false,
+            "properties": {
+                "wait": {
+                    "anyOf": [
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": 3,
+                    "title": "Wait"
+                },
+                "rate": {
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": 1.5,
+                    "title": "Rate"
+                }
+            },
+            "title": "WorkflowV1CreateActionOnErrorBackoff",
+            "type": "object"
+        },
+        "WorkflowV1CreateWorkflowOnError": {
+            "additionalProperties": false,
+            "properties": {
+                "max_retries": {
+                    "exclusiveMaximum": 11,
+                    "exclusiveMinimum": 0,
+                    "title": "Max Retries",
+                    "type": "integer"
+                },
+                "retry_on": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Retry On"
+                },
+                "backoff": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/WorkflowV1CreateWorkflowOnErrorBackoff"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            },
+            "required": [
+                "max_retries"
+            ],
+            "title": "WorkflowV1CreateWorkflowOnError",
+            "type": "object"
+        },
+        "WorkflowV1CreateWorkflowOnErrorBackoff": {
+            "additionalProperties": false,
+            "properties": {
+                "wait": {
+                    "anyOf": [
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": 30,
+                    "title": "Wait"
+                },
+                "rate": {
+                    "anyOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": 2.5,
+                    "title": "Rate"
+                }
+            },
+            "title": "WorkflowV1CreateWorkflowOnErrorBackoff",
+            "type": "object"
+        },
+        "WorkflowsV1CreateAction": {
+            "additionalProperties": false,
+            "properties": {
+                "connector_id": {
+                    "title": "Connector Id",
+                    "type": "string"
+                },
+                "type": {
+                    "pattern": "^[a-zA-Z0-9]+$",
+                    "title": "Type",
+                    "type": "string"
+                },
+                "description": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Description"
+                },
+                "order": {
+                    "exclusiveMaximum": 101,
+                    "exclusiveMinimum": 0,
+                    "title": "Order",
+                    "type": "integer"
+                },
+                "condition": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Condition"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "timeout": {
+                    "anyOf": [
+                        {
+                            "exclusiveMaximum": 121,
+                            "exclusiveMinimum": 0,
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": 3,
+                    "title": "Timeout"
+                },
+                "on_error": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/WorkflowV1CreateActionOnError"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "wait_for_callback": {
+                    "default": true,
+                    "title": "Wait For Callback",
+                    "type": "boolean"
+                },
+                "parameters": {
+                    "anyOf": [
+                        {
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Parameters"
+                },
+                "variables": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Variables"
+                },
+                "transform": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Transform"
+                }
+            },
+            "required": [
+                "connector_id",
+                "type",
+                "order"
+            ],
+            "title": "WorkflowsV1CreateAction",
+            "type": "object"
+        },
+        "WorkflowsV1CreateEventSource": {
+            "additionalProperties": false,
+            "properties": {
+                "connector_id": {
+                    "title": "Connector Id",
+                    "type": "string"
+                },
+                "type": {
+                    "pattern": "^[a-zA-Z0-9]+$",
+                    "title": "Type",
+                    "type": "string"
+                },
+                "condition": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Condition"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "transform": {
+                    "anyOf": [
+                        {
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "integer"
+                                    }
+                                ]
+                            },
+                            "type": "object"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Transform"
+                }
+            },
+            "required": [
+                "connector_id",
+                "type"
+            ],
+            "title": "WorkflowsV1CreateEventSource",
+            "type": "object"
+        }
+    },
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "maxLength": 60,
+            "minLength": 3,
+            "pattern": "^[a-zA-Z0-9 ]+$",
+            "title": "Name",
+            "type": "string"
+        },
+        "description": {
+            "anyOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": null,
+            "title": "Description"
+        },
+        "schema_version": {
+            "const": 1,
+            "title": "Schema Version"
+        },
+        "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+        },
+        "timeout": {
+            "anyOf": [
+                {
+                    "exclusiveMaximum": 901,
+                    "exclusiveMinimum": 0,
+                    "type": "integer"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": null,
+            "title": "Timeout"
+        },
+        "on_error": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/WorkflowV1CreateWorkflowOnError"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": null
+        },
+        "source": {
+            "anyOf": [
+                {
+                    "discriminator": {
+                        "mapping": {
+                            "Flexli:CoreV1:CustomEvent": "#/$defs/CoreV1CustomEventSource",
+                            "Flexli:CoreV1:Schedule": "#/$defs/CoreV1Schedule"
+                        },
+                        "propertyName": "type"
+                    },
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/CoreV1CustomEventSource"
+                        },
+                        {
+                            "$ref": "#/$defs/CoreV1Schedule"
+                        }
+                    ]
+                },
+                {
+                    "$ref": "#/$defs/WorkflowsV1CreateEventSource"
+                },
+                {
+                    "type": "null"
+                }
+            ],
+            "default": null,
+            "title": "Source"
+        },
+        "actions": {
+            "items": {
+                "anyOf": [
+                    {
+                        "discriminator": {
+                            "mapping": {
+                                "Flexli:CoreV1:Branch": "#/$defs/CoreV1Branch",
+                                "Flexli:CoreV1:CustomEvent": "#/$defs/CoreV1CustomEvent",
+                                "Flexli:CoreV1:Iterator": "#/$defs/CoreV1Iterator",
+                                "Flexli:CoreV1:RunWorkflow": "#/$defs/CoreV1RunWorkflow",
+                                "Flexli:CoreV1:Transform": "#/$defs/CoreV1Transform",
+                                "Flexli:CoreV1:Wait": "#/$defs/CoreV1Wait"
+                            },
+                            "propertyName": "type"
+                        },
+                        "oneOf": [
+                            {
+                                "$ref": "#/$defs/CoreV1Transform"
+                            },
+                            {
+                                "$ref": "#/$defs/CoreV1Wait"
+                            },
+                            {
+                                "$ref": "#/$defs/CoreV1RunWorkflow"
+                            },
+                            {
+                                "$ref": "#/$defs/CoreV1CustomEvent"
+                            },
+                            {
+                                "$ref": "#/$defs/CoreV1Iterator"
+                            },
+                            {
+                                "$ref": "#/$defs/CoreV1Branch"
+                            }
+                        ]
+                    },
+                    {
+                        "$ref": "#/$defs/WorkflowsV1CreateAction"
+                    }
+                ]
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Actions",
+            "type": "array"
+        }
+    },
+    "required": [
+        "name",
+        "schema_version",
+        "actions"
+    ],
+    "title": "WorkflowsV1Create",
+    "type": "object"
+}

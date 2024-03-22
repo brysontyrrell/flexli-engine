@@ -1,0 +1,80 @@
+{
+    "$defs": {
+        "RunV1ListItem": {
+            "properties": {
+                "run_id": {
+                    "title": "Run Id",
+                    "type": "string"
+                },
+                "parent_run_id": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "Parent Run Id"
+                },
+                "workflow_id": {
+                    "title": "Workflow Id",
+                    "type": "string"
+                },
+                "workflow_version": {
+                    "title": "Workflow Version",
+                    "type": "integer"
+                },
+                "workflow_name": {
+                    "title": "Workflow Name",
+                    "type": "string"
+                },
+                "status": {
+                    "title": "Status",
+                    "type": "string"
+                },
+                "start_time": {
+                    "title": "Start Time",
+                    "type": "string"
+                },
+                "end_time": {
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null,
+                    "title": "End Time"
+                }
+            },
+            "required": [
+                "run_id",
+                "workflow_id",
+                "workflow_version",
+                "workflow_name",
+                "status",
+                "start_time"
+            ],
+            "title": "RunV1ListItem",
+            "type": "object"
+        }
+    },
+    "properties": {
+        "items": {
+            "items": {
+                "$ref": "#/$defs/RunV1ListItem"
+            },
+            "title": "Items",
+            "type": "array"
+        }
+    },
+    "required": [
+        "items"
+    ],
+    "title": "RunV1List",
+    "type": "object"
+}

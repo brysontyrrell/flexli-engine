@@ -1,0 +1,276 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+
+  LogLevel:
+    Type: String
+
+  SharedLayerArn:
+    Type: String
+
+  MainTableName:
+    Type: String
+
+  MainTableEventBusName:
+    Type: String
+
+  RunQueueName:
+    Type: String
+
+  RunQueueUrl:
+    Type: String
+
+Globals:
+
+  Function:
+    Architectures:
+      - arm64
+    Runtime: python3.10
+    MemorySize: 256
+    Timeout: 900
+    Handler: app.lambda_handler
+    Tracing: Active
+    Layers:
+      - !Ref SharedLayerArn
+      - !Sub arn:aws:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2-Arm64:31
+    Environment:
+      Variables:
+        LOG_LEVEL: !Ref LogLevel
+        MAIN_TABLE_NAME: !Ref MainTableName
+        RUN_QUEUE_ARN: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${RunQueueName}
+        SCHEDULER_ROLE_ARN: !GetAtt SchedulerRole.Arn
+
+Resources:
+
+# Scenarios:
+  # 1. New Workflow -> Automatically is release version, and is enabled (create new schedule)
+  # 2. Promoted Workflow Version -> There will be two events
+    # 2a. MODIFIED Workflow Version - is_release changed to False (delete old schedule)
+    # 2b. MODIFIED Workflow Version - is_release changed to True (create new schedule)
+  # 3. Workflow Version Deleted -> If it was the release version the schedule must be deleted (delete)
+  # 4. Workflow Disabled -> is_release is True, and enabled -> disabled (delete schedule)
+  # 4. Workflow Enabled -> is_release is True, and disabled -> enabled (create schedule)
+
+  SchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SqsSendMessagePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: sqs:SendMessage
+                Resource: !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${RunQueueName}
+
+  CreateScheduleV1:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./create_schedule_v1
+      Policies:
+        - Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - scheduler:CreateSchedule
+              Resource: !Sub 'arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/*/*'
+            - Effect: Allow
+              Action:
+                - iam:PassRole
+              Resource: !GetAtt SchedulerRole.Arn
+      Events:
+        new:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref MainTableEventBusName
+            InputPath: $.detail
+            Pattern:
+              detail:
+                eventName:
+                  - INSERT
+                eventSource:
+                  - 'aws:dynamodb'
+                dynamodb:
+                  NewImage:
+                    source:
+                      M:
+                        connector_type:
+                          S:
+                            - 'Flexli:CoreV1:Schedule'
+                    is_release_version:
+                      BOOL:
+                        - true
+                    enabled:
+                      BOOL:
+                        - true
+        promoted:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref MainTableEventBusName
+            InputPath: $.detail
+            Pattern:
+              detail:
+                eventName:
+                  - MODIFY
+                eventSource:
+                  - 'aws:dynamodb'
+                dynamodb:
+                  NewImage:
+                    source:
+                      M:
+                        connector_type:
+                          S:
+                            - 'Flexli:CoreV1:Schedule'
+                    is_release_version:
+                      BOOL:
+                        - true
+                    enabled:
+                      BOOL:
+                        - true
+                  OldImage:
+                    is_release_version:
+                      BOOL:
+                        - false
+        enabled:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref MainTableEventBusName
+            InputPath: $.detail
+            Pattern:
+              detail:
+                eventName:
+                  - MODIFY
+                eventSource:
+                  - 'aws:dynamodb'
+                dynamodb:
+                  NewImage:
+                    source:
+                      M:
+                        connector_type:
+                          S:
+                            - 'Flexli:CoreV1:Schedule'
+                    is_release_version:
+                      BOOL:
+                        - true
+                    enabled:
+                      BOOL:
+                        - true
+                  OldImage:
+                    enabled:
+                      BOOL:
+                        - false
+
+
+  CreateScheduleV1Logs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${CreateScheduleV1}
+      RetentionInDays: 30
+
+  DeleteScheduleV1:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./delete_schedule_v1
+      Policies:
+        - Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - scheduler:DeleteSchedule
+              Resource: !Sub 'arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/*/*'
+      Events:
+        deleted:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref MainTableEventBusName
+            InputPath: $.detail
+            Pattern:
+              detail:
+                eventName:
+                  - REMOVE
+                eventSource:
+                  - 'aws:dynamodb'
+                dynamodb:
+                  OldImage:
+                    source:
+                      M:
+                        connector_type:
+                          S:
+                            - 'Flexli:CoreV1:Schedule'
+                    is_release_version:
+                      BOOL:
+                        - true
+                    enabled:
+                      BOOL:
+                        - true
+        demoted:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref MainTableEventBusName
+            InputPath: $.detail
+            Pattern:
+              detail:
+                eventName:
+                  - MODIFY
+                eventSource:
+                  - 'aws:dynamodb'
+                dynamodb:
+                  NewImage:
+                    is_release_version:
+                      BOOL:
+                        - false
+                  OldImage:
+                    source:
+                      M:
+                        connector_type:
+                          S:
+                            - 'Flexli:CoreV1:Schedule'
+                    is_release_version:
+                      BOOL:
+                        - true
+                    enabled:
+                      BOOL:
+                        - true
+        disabled:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref MainTableEventBusName
+            InputPath: $.detail
+            Pattern:
+              detail:
+                eventName:
+                  - MODIFY
+                eventSource:
+                  - 'aws:dynamodb'
+                dynamodb:
+                  NewImage:
+                    enabled:
+                      BOOL:
+                        - false
+                  OldImage:
+                    source:
+                      M:
+                        connector_type:
+                          S:
+                            - 'Flexli:CoreV1:Schedule'
+                    is_release_version:
+                      BOOL:
+                        - true
+                    enabled:
+                      BOOL:
+                        - true
+
+  DeleteScheduleV1Logs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${DeleteScheduleV1}
+      RetentionInDays: 30
+

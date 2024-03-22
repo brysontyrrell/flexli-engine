@@ -1,0 +1,71 @@
+{
+    "title": "ConnectorsV1List",
+    "type": "object",
+    "properties": {
+        "items": {
+            "title": "Items",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/ConnectorsV1ListItem"
+            }
+        }
+    },
+    "required": [
+        "items"
+    ],
+    "definitions": {
+        "ConnectorsV1ListItem": {
+            "title": "ConnectorsV1ListItem",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "Id",
+                    "type": "string"
+                },
+                "type": {
+                    "title": "Type",
+                    "type": "string"
+                },
+                "schema_version": {
+                    "title": "Schema Version",
+                    "type": "integer"
+                },
+                "version": {
+                    "title": "Version",
+                    "type": "integer"
+                },
+                "name": {
+                    "title": "Name",
+                    "type": "string"
+                },
+                "description": {
+                    "title": "Description",
+                    "type": "string"
+                },
+                "events": {
+                    "title": "Events",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "actions": {
+                    "title": "Actions",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "type",
+                "schema_version",
+                "version",
+                "name",
+                "events",
+                "actions"
+            ]
+        }
+    }
+}

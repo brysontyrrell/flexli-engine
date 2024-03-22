@@ -1,0 +1,75 @@
+{
+  "name": "Directory Insights Source Demo",
+  "description": "This workflow will poll the Directory Insights API for systems that have been added to a specific group and emit them as custom internal events for other workflows.",
+  "schema_version": 1,
+  "source": {
+      "type": "Flexli:CoreV1:Schedule",
+      "parameters": {
+          "rate": "1 minute"
+      }
+  },
+  "actions": [
+    {
+        "connector_id": "{{Directory Insights Connector ID}}",
+        "order": 1,
+        "type": "QueryEvents",
+        "parameters": {
+            "start_time": "::flexli_time_delta(flexli_datetime_now(), `%Y-%m-%dT%H:%M:%SZ`, `-1`)",
+            "service": ["directory"],
+            "search_term": {
+                "and": [
+                    {"event_type": "association_change"}
+                ]
+            },
+            "fields": ["association"]
+        },
+        "transform": {"::": "::"}
+    },
+    {
+        "type": "Flexli:CoreV1:Iterator",
+        "order": 2,
+        "parameters": {
+            "array_path": "::",
+            "actions": [
+                {
+                    "type": "Flexli:CoreV1:CustomEvent",
+                    "order": 1,
+                    "description": "Send System Group Add Events",
+                    "condition": {
+                        "criteria": [
+                            {
+                                "attributes": [
+                                    {
+                                        "type": "String",
+                                        "attribute": "::association.op",
+                                        "operator": "eq",
+                                        "value": "add"
+                                    },
+                                    {
+                                        "type": "String",
+                                        "attribute": "::association.connection.from.type",
+                                        "operator": "eq",
+                                        "value": "system_group"
+                                    },
+                                    {
+                                        "type": "String",
+                                        "attribute": "::association.connection.from.object_id",
+                                        "operator": "eq",
+                                        "value": "{{System Group ID}}"
+                                    }
+                                ]
+                            }
+                        ],
+                        "on_fail": "skip"
+                    },
+                    "parameters": {
+                        "event_type": "JumpCloudSystemAddedToGroup",
+                        "content_type": "application/json",
+                        "body": "::"
+                    }
+                }
+            ]
+        }
+    }
+  ]
+}

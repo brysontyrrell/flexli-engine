@@ -1,0 +1,225 @@
+{
+    "type": "JumpCloudApi",
+    "name": "JumpCloud API",
+    "description": "A connector for JumpCloud v1 and v2 API actions.",
+    "schema_version": 1,
+    "config": {
+        "host": "console.jumpcloud.com",
+        "base_path": "api",
+        "credentials": {
+            "type": "ApiKey",
+            "api_key": "{{JumpCloud API Key}}",
+            "api_key_header": "x-api-key"
+        },
+        "default_headers": {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+      }
+    },
+    "actions": [
+        {
+            "type": "GetSystemById",
+            "name": "Get a System record by ID",
+            "method": "get",
+            "path": "systems/{system_id}",
+            "parameters": {
+                "properties": {
+                    "system_id": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        {
+            "type": "GetSystemUsersById",
+            "name": "List the Users bound to a System by ID",
+            "method": "get",
+            "path": "v2/systems/{system_id}/users",
+            "parameters": {
+                "properties": {
+                    "system_id": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        {
+            "type": "ManageSystemGroupMembership",
+            "name": "Add or remove a System from a System Group",
+            "method": "post",
+            "path": "v2/systemgroups/{group_id}/members",
+            "body": {
+                "id": "::system_id",
+                "op": "::operation",
+                "type": "system"
+            },
+            "parameters": {
+                "properties": {
+                    "group_id": {
+                        "type": "string"
+                    },
+                    "operation": {
+                        "type": "string",
+                        "enum": ["add", "remove"]
+                    },
+                    "system_id": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        {
+            "type": "EraseAppleMdmDevice",
+            "name": "Erase an Apple Device",
+            "method": "post",
+            "path": "v2/applemdms/{mdm_id}/devices/{mdm_device_id}/erase",
+            "body": {
+                "pin": "::pin"
+            },
+            "parameters": {
+                "properties": {
+                    "mdm_id": {
+                        "type": "string"
+                    },
+                    "mdm_device_id": {
+                        "type": "string"
+                    },
+                    "pin": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        {
+            "type": "GetUserById",
+            "name": "Get a system user record by ID.",
+            "method": "get",
+            "path": "systemusers/{user_id}",
+            "parameters": {
+                "properties": {
+                    "user_id": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        {
+            "type": "ManageUserElevatedPermissions",
+            "name": "Manage a user's administrator access on devices.",
+            "method": "put",
+            "path": "systemusers/{user_id}",
+            "body": {
+                "sudo": "::sudo",
+                "passwordless_sudo": "::passwordless_sudo"
+            },
+            "parameters": {
+                "properties": {
+                    "user_id": {
+                        "type": "string"
+                    },
+                    "sudo": {
+                        "type": "boolean"
+                    },
+                    "passwordless_sudo": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        },
+        {
+            "type": "CreateSystemCommandWithTrigger",
+            "name": "Create a new system command, launched by a trigger, that runs as root.",
+            "method": "post",
+            "path": "commands",
+            "body": {
+                "name": "::name",
+                "command": "::command",
+                "commandType": "::commandType",
+                "launchType": "trigger",
+                "trigger": "::trigger",
+                "user": "000000000000000000000000",
+                "schedule": "immediate",
+                "timeout":"60"
+            },
+            "parameters": {
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "command": {
+                        "type": "string"
+                    },
+                    "commandType": {
+                        "type": "string"
+                    },
+                    "trigger": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        {
+            "type": "ManageSystemCommandAssociations",
+            "name": "Manage System Command Associations",
+            "method": "post",
+            "path": "v2/systems/{system_id}/associations",
+            "body": "::body",
+            "parameters": {
+                "properties": {
+                    "system_id": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "op": {
+                                "type":"string",
+                                "enum": ["add", "remove", "update"]
+                            },
+                            "attributes": {
+                                "type": "object"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": ["command", "policy", "policy_group", "user", "user_group"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "DeleteSystemCommand",
+            "name": "Delete a system command.",
+            "method": "delete",
+            "path": "commands/{command_id}",
+            "parameters": {
+                "properties": {
+                    "command_id": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        {
+            "type": "LaunchSystemCommandWithTrigger",
+            "name": "Launch a system command using a trigger and providing a payload.",
+            "method": "post",
+            "path": "command/trigger/{trigger_name}",
+            "body": "::body",
+            "parameters": {
+                "properties": {
+                    "trigger_name": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "object"
+                    }
+                }
+            }
+        }
+    ]
+}

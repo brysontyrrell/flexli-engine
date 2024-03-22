@@ -1,0 +1,65 @@
+{
+  "name": "JumpCloud Erase Apple Device",
+  "schema_version": 1,
+  "actions": [
+    {
+      "connector_id": "{{JumpCloud Connector ID}}",
+      "order": 1,
+      "type": "GetSystemById",
+      "description": "Get System Details",
+      "parameters": {
+        "system_id": "::system_id"
+      },
+      "transform": {
+          "mdm_device_id": "::mdm.internal.deviceId",
+          "mdm_erase_pin": "::flexli_random_string(`6`, `numbers`)"
+      }
+    },
+    {
+      "connector_id": "{{JumpCloud Connector ID}}",
+      "order": 2,
+      "type": "EraseAppleMdmDevice",
+      "description": "Erase the System",
+      "parameters": {
+        "mdm_id": "::mdm_id",
+        "mdm_device_id": "::mdm_device_id",
+        "pin": "::mdm_erase_pin"
+      }
+    },
+    {
+      "connector_id": "{{Slack Connector ID}}",
+      "order": 3,
+      "type": "PostMessage",
+      "description": "Notify Channel on Auto-Erase",
+      "parameters": {
+        "webhook_path": "{{Slack Webhook Path}}",
+        "body": {
+            "text": "System {system_id} Erased! Pin: {mdm_erase_pin}",
+            "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "System Auto-Erased!"
+                        },
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": "*ID:* {system_id}"
+                            },
+                            {
+                                "type": "mrkdwn",
+                                "text": "*Pin:* *{pin}*"
+                            }
+                        ]
+                }
+            ]
+        }
+      },
+      "variables": {
+          "system_id": "::system_id",
+          "mdm_erase_pin": "::mdm_erase_pin"
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+    "title": "ConnectorV1Read",
+    "type": "object",
+    "properties": {
+        "id": {
+            "title": "Id",
+            "type": "string"
+        },
+        "type": {
+            "title": "Type",
+            "type": "string"
+        },
+        "schema_version": {
+            "title": "Schema Version",
+            "type": "integer"
+        },
+        "version": {
+            "title": "Version",
+            "type": "integer"
+        },
+        "name": {
+            "title": "Name",
+            "type": "string"
+        },
+        "description": {
+            "title": "Description",
+            "type": "string"
+        },
+        "config": {
+            "title": "Config",
+            "type": "object"
+        },
+        "events": {
+            "title": "Events",
+            "type": "array",
+            "items": {}
+        },
+        "actions": {
+            "title": "Actions",
+            "type": "array",
+            "items": {}
+        }
+    },
+    "required": [
+        "id",
+        "type",
+        "schema_version",
+        "version",
+        "name",
+        "config"
+    ]
+}

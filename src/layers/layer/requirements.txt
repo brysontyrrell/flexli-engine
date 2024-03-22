@@ -1,0 +1,8 @@
+jmespath==1.0.1
+jsonschema==4.21.1
+pydantic==2.5.3
+python-dateutil==2.8.2
+python-ulid==2.2.0
+requests==2.31.0
+# See https://github.com/boto/botocore/issues/2926 and https://github.com/psf/requests/issues/6443
+urllib3<2

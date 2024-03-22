@@ -1,0 +1,246 @@
+openapi: '3.1.0'
+info:
+    title: Flexli Engine API
+    version: 'Alpha'
+
+tags:
+    - name: Connectors
+    - name: Workflows
+    - name: Run Workflow
+    - name: Run History
+
+paths:
+
+  /v1/connectors:
+    post:
+      summary: Create a Connector
+      tags:
+        - Connectors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '_schemas/ConnectorV1Create.json'
+      responses:
+        201:
+          $ref: '#/components/responses/Created'
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      summary: List Connectors
+      tags:
+        - Connectors
+      responses:
+        200:
+          description: Connector
+          content:
+            application/json:
+              schema:
+                $ref: '_schemas/ConnectorsV1List.json'
+
+  /v1/connectors/{connector_id}:
+    get:
+      summary: Read a Connector
+      tags:
+        - Connectors
+      parameters:
+        - $ref: '#/components/parameters/ConnectorIdParam'
+      responses:
+        200:
+          description: Connector
+          content:
+            application/json:
+              schema:
+                $ref: '_schemas/ConnectorV1Read.json'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete a Connector
+      tags:
+        - Connectors
+      parameters:
+        - $ref: '#/components/parameters/ConnectorIdParam'
+      responses:
+        204:
+          description: Deleted
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /v1/workflows:
+    post:
+      summary: Create a Workflow
+      tags:
+          - Workflows
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '_schemas/WorkflowsV1Create.json'
+      responses:
+        201:
+          $ref: '#/components/responses/Created'
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      summary: List all Workflow Versions
+      tags:
+        - Workflows
+      responses:
+        200:
+          description: Workflow Version
+          content:
+            application/json:
+              schema:
+                $ref: '_schemas/WorkflowsList.json'
+
+  /v1/workflows/{workflow_id}/versions/{version}:
+    get:
+      summary: Read a Workflow Version
+      tags:
+        - Workflows
+      parameters:
+        - $ref: '#/components/parameters/WorkflowIdParam'
+        - $ref: '#/components/parameters/WorkflowVersionParam'
+      responses:
+        200:
+          description: Workflow Version
+          content:
+            application/json:
+              schema:
+                $ref: '_schemas/WorkflowsV1Read.json'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete a Workflow Version
+      tags:
+        - Workflows
+      parameters:
+        - $ref: '#/components/parameters/WorkflowIdParam'
+        - $ref: '#/components/parameters/WorkflowVersionParam'
+      responses:
+        204:
+          description: Deleted
+
+  /v1/run-workflow/{workflow_id}/version/{version}:
+    post:
+      summary: Directly Run a Workflow Version
+      tags:
+        - Run Workflow
+      parameters:
+        - $ref: '#/components/parameters/WorkflowIdParam'
+        - $ref: '#/components/parameters/WorkflowVersionParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: InitialState
+              type: object
+      responses:
+        201:
+          $ref: '#/components/responses/Created'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /v1/run-history:
+    get:
+      summary: List all Workflow Runs
+      tags:
+        - Run History
+      responses:
+        200:
+          description: List of Workflow Runs
+          content:
+            application/json:
+              schema:
+                $ref: '_schemas/RunV1List.json'
+
+  /v1/run-history/{run_id}:
+    get:
+      summary: List all Status Updates for a Workflow Run
+      tags:
+        - Run History
+      responses:
+        200:
+          description: List of Workflow Run Status Updates
+          content:
+            application/json:
+              schema:
+                $ref: '_schemas/RunHistoryV1List.json'
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+components:
+
+  parameters:
+
+    ConnectorIdParam:
+      description: Connector ID
+      in: path
+      name: connector_id
+      required: true
+      schema:
+        type: string
+
+    WorkflowIdParam:
+      description: Workflow ID
+      in: path
+      name: workflow_id
+      required: true
+      schema:
+        type: string
+
+    WorkflowVersionParam:
+      description: Workflow Version
+      in: path
+      name: version
+      required: true
+      schema:
+        type: number
+
+    RunIdParam:
+      description: Workflow Run ID
+      in: path
+      name: run_id
+      required: true
+      schema:
+        type: string
+
+  responses:
+
+    Created:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: '_schemas/CreatedResponse.json'
+
+    BadRequest:
+      description: Bad request.
+      content:
+        application/json:
+          schema:
+            $ref: '_schemas/ApiErrorResponse.json'
+
+    Conflict:
+      description: There is a conflict with an existing resource.
+      content:
+        application/json:
+          schema:
+            $ref: '_schemas/ApiErrorResponse.json'
+
+    NotFound:
+      description: The resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '_schemas/ApiErrorResponse.json'
+
