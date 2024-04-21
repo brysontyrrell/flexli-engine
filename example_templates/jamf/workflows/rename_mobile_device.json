@@ -38,6 +38,7 @@
             "type": "RenameDeviceCommand",
             "order": 2,
             "parameters": {
+                "device_name": "::event.serialNumber",
                 "management_id": "::event.managementId"
             },
             "on_error": {

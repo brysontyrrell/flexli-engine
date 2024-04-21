@@ -69,6 +69,33 @@
             }
         },
         {
+            "type": "RenameDeviceCommand",
+            "method": "post",
+            "path": "api/preview/mdm/commands",
+            "body": {
+                "commandData": {
+                    "commandType": "SETTINGS",
+                    "deviceName": "::device_name"
+                },
+                "clientData": [
+                    {
+                        "managementId": "::management_id"
+                    }
+                ]
+            },
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "device_name": {
+                        "type": "string"
+                    },
+                    "management_id": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        {
             "type": "GetMobileDeviceGroupMembersClassic",
             "method": "get",
             "path": "JSSResource/mobiledevicegroups/id/{group_id}",
