@@ -1,0 +1,49 @@
+{
+    "name": "Rename Mobile Devices",
+    "description": "Rename mobile devices after enrollment.",
+    "schema_version": 1,
+    "source": {
+        "type": "Flexli:CoreV1:CustomEvent",
+        "parameters": {
+            "event_type": "MobileDeviceEnrolled"
+        }
+    },
+    "actions": [
+        {
+            "connector_id": "{{Jamf Connector ID}}",
+            "type": "GetMobileDeviceDetailsV2",
+            "description": "Get the management ID if not present in the webhook event.",
+            "order": 1,
+            "condition": {
+                "criteria": {
+                    "attributes": [
+                        {
+                            "type": "Boolean",
+                            "attribute": "::contains(general.managementId)",
+                            "operator": "eq",
+                            "value": false
+                        }
+                    ]
+                }
+            },
+            "parameters": {
+                "device_id": "::id"
+            },
+            "transform": {
+                "event.managementId": "::general.managementId"
+            }
+        },
+        {
+            "connector_id": "{{Jamf Connector ID}}",
+            "type": "RenameDeviceCommand",
+            "order": 2,
+            "parameters": {
+                "management_id": "::event.managementId"
+            },
+            "on_error": {
+                "max_retries": 3,
+                "on_fail": "skip"
+            }
+        }
+    ]
+}

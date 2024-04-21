@@ -1,0 +1,57 @@
+{
+    "name": "Redeploy Management Framework",
+    "description": "Redeploy the Jamf management framework when a computer enters a smart group.",
+    "schema_version": 1,
+    "source": {
+        "type": "Flexli:CoreV1:CustomEvent",
+        "parameters": {
+            "event_type": "SmartComputerGroupMembershipChange"
+        },
+        "condition": {
+            "criteria": [
+                {
+                    "attributes": [
+                        {
+                            "type": "Number",
+                            "attribute": "::event.jssid",
+                            "operator": "eq",
+                            "value": "{{Computer Group ID}}"
+                        },
+                        {
+                            "type": "Number",
+                            "attribute": "::event.groupAddedDevicesIds[] | length(@)",
+                            "operator": "gt",
+                            "value": 0
+                        }
+                    ]
+                }
+            ]
+        },
+        "transform": {
+            "device_ids": "::event.groupAddedDevicesIds"
+        }
+    },
+    "actions": [
+        {
+            "type": "Flexli:CoreV1:Iterator",
+            "order": 1,
+            "parameters": {
+                "array_path": "::device_ids",
+                "actions": [
+                    {
+                        "connector_id": "{{Jamf Connector ID}}",
+                        "type": "RedeployManagementFrameworkCommand",
+                        "order": 1,
+                        "parameters": {
+                            "device_id": "::"
+                        },
+                        "on_error": {
+                            "max_retries": 3,
+                            "on_fail": "skip"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

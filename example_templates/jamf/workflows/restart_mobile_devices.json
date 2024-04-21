@@ -1,0 +1,52 @@
+{
+    "name": "Rename Mobile Devices",
+    "description": "Rename mobile devices after enrollment.",
+    "schema_version": 1,
+    "source": {
+        "type": "Flexli:CoreV1:CustomEvent",
+        "parameters": {
+            "event_type": "MobileDeviceEnrolled"
+        }
+    },
+    "actions": [
+        {
+            "connector_id": "{{Jamf Connector ID}}",
+            "type": "GetMobileDeviceGroupMembersClassic",
+            "order": 1,
+            "parameters": {
+                "group_id": "{{Mobile Device Group ID}}"
+            },
+            "transform": {
+                "mobile_devices": "::mobile_devices"
+            }
+        },
+        {
+            "type": "Flexli:CoreV1:Iterator",
+            "order": 2,
+            "parameters": {
+                "array_path": "::device_ids",
+                "actions": [
+                    {
+                        "connector_id": "{{Jamf Connector ID}}",
+                        "type": "GetMobileDeviceDetailsV2",
+                        "order": 1,
+                        "parameters": {
+                            "device_id": "::id"
+                        },
+                        "transform": {
+                            "management_id": "::general.managementId"
+                        }
+                    },
+                    {
+                        "connector_id": "{{Jamf Connector ID}}",
+                        "type": "RestartDeviceCommand",
+                        "order": 2,
+                        "parameters": {
+                            "management_id": "::management_id"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

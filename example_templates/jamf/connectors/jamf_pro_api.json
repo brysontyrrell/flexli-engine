@@ -1,0 +1,98 @@
+{
+    "type": "JamfPro",
+    "name": "Jamf Pro",
+    "description": "A connector for the Jamf Pro APIs and Webhooks.",
+    "schema_version": 1,
+    "config": {
+        "host": "{{example.jamfcloud.com}}",
+        "default_headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        "credentials": {
+            "type": "OAuth2Client",
+            "token_url": "https://{{example.jamfcloud.com}}/api/oauth/token",
+            "client_id": "{{Client ID}}",
+            "client_secret": "{{Client Secret}}",
+            "basic_auth": false,
+            "headers": {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "body": {
+                "grant_type": "client_credentials"
+            }
+        }
+    },
+    "events": [
+        {
+            "type": "SmartComputerGroupMembershipChange"
+        },
+        {
+            "type": "MobileDeviceEnrolled"
+        }
+    ],
+    "actions": [
+        {
+            "type": "RedeployManagementFrameworkCommand",
+            "method": "post",
+            "path": "api/v1/jamf-management-framework/redeploy/{device_id}",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "device_id": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        {
+            "type": "RestartDeviceCommand",
+            "method": "post",
+            "path": "api/preview/mdm/commands",
+            "body": {
+                "commandData": {
+                    "commandType": "RESTART_DEVICE"
+                },
+                "clientData": [
+                    {
+                        "managementId": "::management_id"
+                    }
+                ]
+            },
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "management_id": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        {
+            "type": "GetMobileDeviceGroupMembersClassic",
+            "method": "get",
+            "path": "JSSResource/mobiledevicegroups/id/{group_id}",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "group_id": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        {
+            "type": "GetMobileDeviceDetailsV2",
+            "method": "get",
+            "path": "api/v2/mobile-devices/{device_id}",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "device_id": {
+                        "type": "number"
+                    }
+                }
+            }
+        }
+    ]
+}

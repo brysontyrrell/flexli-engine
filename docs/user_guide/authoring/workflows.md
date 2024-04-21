@@ -19,7 +19,7 @@ Use conditions on events and actions to control workflow behavior. A condition i
       "attributes": [
         {
           "type": "Boolean | Date | Number | String | Version",
-          "attribute": "string",
+          "attribute": "expression",
           "operator": "eq | ne | lt | lte | gt | gte | starts_with | before | after",
           "value": "value | expression"
         }
