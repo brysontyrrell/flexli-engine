@@ -17,7 +17,7 @@
                     "attributes": [
                         {
                             "type": "Boolean",
-                            "attribute": "::contains(general.managementId)",
+                            "attribute": "::contains(event.managementId)",
                             "operator": "eq",
                             "value": false
                         }
@@ -25,7 +25,7 @@
                 }
             },
             "parameters": {
-                "device_id": "::id"
+                "device_id": "::event.id"
             },
             "transform": {
                 "event.managementId": "::general.managementId"
