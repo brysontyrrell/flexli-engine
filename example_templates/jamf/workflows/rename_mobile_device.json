@@ -3,10 +3,8 @@
     "description": "Rename mobile devices after enrollment.",
     "schema_version": 1,
     "source": {
-        "type": "Flexli:CoreV1:CustomEvent",
-        "parameters": {
-            "event_type": "MobileDeviceEnrolled"
-        }
+        "connector_id": "{{Jamf Connector ID}}",
+        "type": "MobileDeviceEnrolled"
     },
     "actions": [
         {

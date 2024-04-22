@@ -3,10 +3,8 @@
     "description": "Redeploy the Jamf management framework when a computer enters a smart group.",
     "schema_version": 1,
     "source": {
-        "type": "Flexli:CoreV1:CustomEvent",
-        "parameters": {
-            "event_type": "SmartComputerGroupMembershipChange"
-        },
+        "connector_id": "{{Jamf Connector ID}}",
+        "type": "SmartComputerGroupMembershipChange",
         "condition": {
             "criteria": [
                 {
