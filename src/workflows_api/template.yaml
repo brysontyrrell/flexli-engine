@@ -27,6 +27,16 @@ Parameters:
   CognitoUserPoolArn:
     Type: String
 
+  AppDomain:
+    Type: String
+    MinLength: 3
+
+  HostedZoneId:
+    Type: String
+
+  CertificateArn:
+    Type: String
+
 Globals:
 
   Function:
@@ -64,6 +74,13 @@ Resources:
       # AccessLogSetting:
       #   DestinationArn: !GetAtt WorkflowsApiAccessLogs.Arn
       #   Format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","httpMethod":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":$context.status,"responseLatency":$context.responseLatency}'
+      Domain:
+        DomainName: !Sub api.${AppDomain}
+        CertificateArn: !Ref CertificateArn
+        EndpointConfiguration: EDGE
+        Route53:
+          HostedZoneId: !Ref HostedZoneId
+        SecurityPolicy: TLS_1_2
       MethodSettings:
         - HttpMethod: "*"
           ResourcePath: "/*"

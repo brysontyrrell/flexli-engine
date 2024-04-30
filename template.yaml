@@ -10,11 +10,22 @@ Parameters:
       - INFO
     Default: INFO
 
+  AppDomain:
+    Type: String
+    MinLength: 3
+
   SubDomain:
     Type: String
     MinLength: '3'
     MaxLength: '63'
     AllowedPattern: ^[a-z0-9][a-z0-9\-]{1,61}[a-z0-9]$
+
+  HostedZoneId:
+    Type: String
+
+  CertificateArn:
+    Type: String
+    Description: Must be us-east-1
 
 Resources:
 
@@ -50,7 +61,10 @@ Resources:
     Properties:
       Location: ./src/auth/template.yaml
       Parameters:
+        AppDomain: !Ref AppDomain
         SubDomain: !Ref SubDomain
+        HostedZoneId: !Ref HostedZoneId
+        CertificateArn: !Ref CertificateArn
 
   WorkflowsApi:
     Type: AWS::Serverless::Application
@@ -65,6 +79,9 @@ Resources:
         RunQueueName: !GetAtt Resources.Outputs.RunQueueName
         RunQueueUrl: !GetAtt Resources.Outputs.RunQueueUrl
         CognitoUserPoolArn: !GetAtt Auth.Outputs.CognitoUserPoolArn
+        AppDomain: !Ref AppDomain
+        HostedZoneId: !Ref HostedZoneId
+        CertificateArn: !Ref CertificateArn
 
   WorkflowsScheduler:
     Type: AWS::Serverless::Application

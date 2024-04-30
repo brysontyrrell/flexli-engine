@@ -3,11 +3,21 @@ Transform: AWS::Serverless-2016-10-31
 
 Parameters:
 
-    SubDomain:
-      Type: String
-      MinLength: 3
-      MaxLength: 63
-      AllowedPattern: ^[a-z0-9][a-z0-9\-]{1,61}[a-z0-9]$
+  AppDomain:
+    Type: String
+    MinLength: 3
+
+  SubDomain:
+    Type: String
+    MinLength: 3
+    MaxLength: 63
+    AllowedPattern: ^[a-z0-9][a-z0-9\-]{1,61}[a-z0-9]$
+
+  HostedZoneId:
+    Type: String
+
+  CertificateArn:
+    Type: String
 
 Resources:
 
@@ -32,6 +42,25 @@ Resources:
     Properties:
       Domain: !Ref SubDomain
       UserPoolId: !Ref UserPool
+
+  UserPoolAppDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Sub auth.${AppDomain}
+      CustomDomainConfig:
+        CertificateArn: !Ref CertificateArn
+      UserPoolId: !Ref UserPool
+
+  UserPoolAppDomainRecord:
+     Type: AWS::Route53::RecordSet
+     Properties:
+       HostedZoneId: !Ref HostedZoneId
+       Name: !Sub auth.${AppDomain}
+       Type: A
+       AliasTarget:
+         HostedZoneId: Z2FDTNDATAQYW2
+         DNSName: !GetAtt UserPoolDomain.CloudFrontDistribution
+         EvaluateTargetHealth: false
 
   WorkflowsApiResourceServer:
     Type: AWS::Cognito::UserPoolResourceServer
