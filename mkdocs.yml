@@ -15,6 +15,7 @@ nav:
     - Core Resources: authoring/core.md
     - Workflow Strategies: authoring/strategies.md
     - Templates: authoring/templates.md
+    - Working with Editors: authoring/editors.md
 #  - API Docs: "./api"
 
 markdown_extensions:
