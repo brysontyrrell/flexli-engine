@@ -31,8 +31,20 @@ markdown_extensions:
   - pymdownx.highlight:
       use_pygments: true
       pygments_lang_class: true
+
 theme:
   name: material
   palette:
-    # https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#custom-colors
-    primary: deep-purple
+    # Palette toggle for light mode
+    - scheme: default
+      primary: deep-purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: deep-purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
