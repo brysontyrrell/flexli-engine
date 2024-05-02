@@ -1,19 +1,18 @@
 from typing import Optional
 
-from pydantic.v1 import BaseModel, Extra
+from pydantic import BaseModel, ConfigDict
 
 
 class ConnectorV1Read(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     id: str
     type: str
     schema_version: int
     version: int
     # revision: int
     name: str
-    description: Optional[str]
+    description: Optional[str] = None
     config: dict
-    events: Optional[list]
-    actions: Optional[list]
-
-    class Config:
-        extra = Extra.ignore
+    events: Optional[list] = None
+    actions: Optional[list] = None

@@ -3,7 +3,6 @@ import os
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities.typing import LambdaContext
 import boto3
-from pydantic import parse_obj_as
 
 from apis.middleware import api_middleware_v1
 from apis.models import ApiMiddlewareEvent, ApiResponse
@@ -24,4 +23,4 @@ def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResp
     response = read_connector(
         dynamodb_table, tenant_id=event.tenant_id, connector_id=connector_id
     )
-    return ApiResponse(200, parse_obj_as(ConnectorV1Read, response).dict())
+    return ApiResponse(200, ConnectorV1Read.model_validate(response).model_dump())

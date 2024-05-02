@@ -3,13 +3,13 @@ import os
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities.typing import LambdaContext
 import boto3
-from pydantic import ValidationError, parse_obj_as
+from pydantic import ValidationError
 
 from apis.middleware import api_middleware_v1
 from apis.models import ApiMiddlewareEvent, ApiResponse, BadRequest
 from database.workflows import list_workflows
 
-from local import QueryStringParams, WorkflowsList, WorkflowsListItem
+from local import QueryStringParams, WorkflowsList
 
 logger = Logger()
 
@@ -23,8 +23,7 @@ def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResp
     logger.append_keys(tenant_id=event.tenant_id)
 
     try:
-        request_params = parse_obj_as(
-            QueryStringParams,
+        request_params = QueryStringParams.model_validate(
             event.source_event.query_string_parameters or {},
         )
     except ValidationError as error:
@@ -43,5 +42,5 @@ def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResp
 
     return ApiResponse(
         200,
-        {"items": [parse_obj_as(WorkflowsListItem, item).dict() for item in response]},
+        WorkflowsList.model_validate({"items": [item for item in response]}).model_dump(),
     )

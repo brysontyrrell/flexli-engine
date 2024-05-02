@@ -1,12 +1,10 @@
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, ConfigDict
 
 
 class User(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     sub: str
     tenant_id: str
-
-    class Config:
-        extra = Extra.ignore
 
 
 def write_user_context(table_resource, user: User):
