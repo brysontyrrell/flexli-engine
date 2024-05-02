@@ -33,7 +33,6 @@ Globals:
     Tracing: Active
     Layers:
       - !Ref SharedLayerArn
-      - !Sub arn:aws:lambda:${AWS::Region}:017000801446:layer:AWSLambdaPowertoolsPythonV2-Arm64:31
     Environment:
       Variables:
         LOG_LEVEL: !Ref LogLevel
