@@ -29,13 +29,19 @@ class ApiMiddlewareEvent:
 class PathParams(BaseModel):
     model_config = ConfigDict(extra="allow")
 
-    @model_validator(mode="after")
-    def validates_path_ids(cls, values):
+    @model_validator(mode="before")
+    def validate_path_ids(cls, values):
         for k, v in values.items():
             if k.endswith("_id"):
                 ULID.from_str(v)
         return values
 
+    # @model_validator(mode="after")
+    # def validate_path_ids(self):
+    #     for k in self.model_fields_set:
+    #         if k.endswith("_id"):
+    #             setattr(self, k, ULID.from_str(getattr(self, k)))
+    #     return self
 
 @dataclass
 class ApiResponse:

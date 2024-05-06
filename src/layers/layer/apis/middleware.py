@@ -76,7 +76,7 @@ def api_middleware_v1(
         # Validate path parameters
         if event_data.path_parameters:
             try:
-                parse_obj_as(PathParams, event_data.path_parameters)
+                PathParams.model_validate(event_data.path_parameters)
             except ValueError:
                 raise BadRequest(description="Invalid resource ID")
 

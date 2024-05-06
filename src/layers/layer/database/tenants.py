@@ -5,6 +5,7 @@ class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
     sub: str
     tenant_id: str
+    email: str
 
 
 def write_user_context(table_resource, user: User):

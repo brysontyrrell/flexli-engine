@@ -108,19 +108,19 @@ Resources:
     DependsOn:
       - WorkflowsApiResourceServer
 
-  PreAuthentication:
-    Type: AWS::Serverless::Function
-    Properties:
-      Runtime: python3.10
-      Handler: app.lambda_handler
-      CodeUri: ./src/pre_authentication
-      Events:
-        preauth:
-          Type: Cognito
-          Properties:
-            Trigger: PreAuthentication
-            UserPool:
-              Ref: UserPool
+#  PreAuthentication:
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      Runtime: python3.10
+#      Handler: app.lambda_handler
+#      CodeUri: ./src/pre_authentication
+#      Events:
+#        preauth:
+#          Type: Cognito
+#          Properties:
+#            Trigger: PreAuthentication
+#            UserPool:
+#              Ref: UserPool
 
 Outputs:
 
