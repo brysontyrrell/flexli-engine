@@ -21,11 +21,29 @@
             "body": {
                 "grant_type": "client_credentials"
             }
+        },
+        "events": {
+            "auth": "BasicAuth",
+            "type_keypath": "webhook.webhookEvent",
+            "default_schema": {
+                "type": "object",
+                "properties": {
+                    "event": {
+                        "type": "object"
+                    },
+                    "webhook": {
+                        "type": "object"
+                    }
+                }
+            }
         }
     },
     "events": [
         {
-            "type": "SmartComputerGroupMembershipChange"
+            "type": "SmartComputerGroupMembershipChange",
+            "schema": {
+                "type": "object"
+            }
         },
         {
             "type": "MobileDeviceEnrolled"
