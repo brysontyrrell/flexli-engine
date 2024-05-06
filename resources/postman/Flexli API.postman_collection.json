@@ -1,0 +1,468 @@
+{
+	"info": {
+		"_postman_id": "550b3d76-1237-4d42-9602-b8a7467a35b1",
+		"name": "Flexli API",
+		"description": "Flexli Engine is a flexible, extensible, event-driven workflow engine that allows users to connect APIs from different providers into meaningful integrations without writing, deploying, and maintaining their own code.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "439237"
+	},
+	"item": [
+		{
+			"name": "Demos",
+			"item": [
+				{
+					"name": "Create Slack Connector",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"SlackIncomingWebhook\",\n    \"name\": \"Slack Incoming Webhook\",\n    \"description\": \"A basic connector for sending messages to Slack Incoming Webhook URLs.\",\n    \"schema_version\": 1,\n    \"config\": {\n        \"host\": \"hooks.slack.com\",\n        \"base_path\": \"services\",\n        \"default_headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json\"\n      }\n    },\n    \"actions\": [\n        {\n            \"type\": \"PostMessage\",\n            \"method\": \"post\",\n            \"path\": \"::webhook_path\",\n            \"body\": \"::body\",\n            \"parameters\": {\n                \"properties\": {\n                    \"webhook_path\": {\n                        \"type\": \"string\"\n                    },\n                    \"body\": {\n                        \"title\": \"PostMessageParams\",\n                        \"type\": \"object\",\n                        \"properties\": {\n                            \"text\": {\n                                \"title\": \"Text\",\n                                \"maxLength\": 2000,\n                                \"type\": \"string\"\n                            },\n                            \"blocks\": {\n                                \"title\": \"Blocks\",\n                                \"maxItems\": 50,\n                                \"type\": \"array\",\n                                \"items\": {\n                                    \"anyOf\": [\n                                        {\n                                            \"$ref\": \"#/definitions/BlockDivider\"\n                                        },\n                                        {\n                                            \"$ref\": \"#/definitions/BlockHeader\"\n                                        },\n                                        {\n                                            \"$ref\": \"#/definitions/BlockSection\"\n                                        }\n                                    ]\n                                }\n                            },\n                            \"mrkdown\": {\n                                \"title\": \"Mrkdown\",\n                                \"default\": true,\n                                \"type\": \"boolean\"\n                            }\n                        },\n                        \"required\": [\n                            \"text\"\n                        ],\n                        \"additionalProperties\": false\n                    }\n                },\n                \"required\": [\n                    \"webhook_path\",\n                    \"body\"\n                ],\n                \"additionalProperties\": false,\n                \"definitions\": {\n                    \"BlockDivider\": {\n                        \"title\": \"BlockDivider\",\n                        \"type\": \"object\",\n                        \"properties\": {\n                            \"type\": {\n                                \"title\": \"Type\",\n                                \"enum\": [\n                                    \"divider\"\n                                ],\n                                \"type\": \"string\"\n                            }\n                        },\n                        \"required\": [\n                            \"type\"\n                        ],\n                        \"additionalProperties\": false\n                    },\n                    \"BlockHeaderTextObject\": {\n                        \"title\": \"BlockHeaderTextObject\",\n                        \"type\": \"object\",\n                        \"properties\": {\n                            \"type\": {\n                                \"title\": \"Type\",\n                                \"enum\": [\n                                    \"plain_text\"\n                                ],\n                                \"type\": \"string\"\n                            },\n                            \"text\": {\n                                \"title\": \"Text\",\n                                \"minLength\": 1,\n                                \"maxLength\": 150,\n                                \"type\": \"string\"\n                            },\n                            \"emoji\": {\n                                \"title\": \"Emoji\",\n                                \"default\": false,\n                                \"type\": \"boolean\"\n                            },\n                            \"verbatim\": {\n                                \"title\": \"Verbatim\",\n                                \"default\": false,\n                                \"type\": \"boolean\"\n                            }\n                        },\n                        \"required\": [\n                            \"type\",\n                            \"text\"\n                        ],\n                        \"additionalProperties\": false\n                    },\n                    \"BlockHeader\": {\n                        \"title\": \"BlockHeader\",\n                        \"type\": \"object\",\n                        \"properties\": {\n                            \"type\": {\n                                \"title\": \"Type\",\n                                \"enum\": [\n                                    \"header\"\n                                ],\n                                \"type\": \"string\"\n                            },\n                            \"text\": {\n                                \"$ref\": \"#/definitions/BlockHeaderTextObject\"\n                            }\n                        },\n                        \"required\": [\n                            \"type\",\n                            \"text\"\n                        ],\n                        \"additionalProperties\": false\n                    },\n                    \"BlockTextObjectTypes\": {\n                        \"title\": \"BlockTextObjectTypes\",\n                        \"description\": \"An enumeration.\",\n                        \"enum\": [\n                            \"mrkdwn\",\n                            \"plain_text\"\n                        ],\n                        \"type\": \"string\"\n                    },\n                    \"BlockTextObject\": {\n                        \"title\": \"BlockTextObject\",\n                        \"type\": \"object\",\n                        \"properties\": {\n                            \"type\": {\n                                \"$ref\": \"#/definitions/BlockTextObjectTypes\"\n                            },\n                            \"text\": {\n                                \"title\": \"Text\",\n                                \"minLength\": 1,\n                                \"maxLength\": 2000,\n                                \"type\": \"string\"\n                            },\n                            \"emoji\": {\n                                \"title\": \"Emoji\",\n                                \"default\": false,\n                                \"type\": \"boolean\"\n                            },\n                            \"verbatim\": {\n                                \"title\": \"Verbatim\",\n                                \"default\": false,\n                                \"type\": \"boolean\"\n                            }\n                        },\n                        \"required\": [\n                            \"type\",\n                            \"text\"\n                        ],\n                        \"additionalProperties\": false\n                    },\n                    \"BlockSection\": {\n                        \"title\": \"BlockSection\",\n                        \"type\": \"object\",\n                        \"properties\": {\n                            \"type\": {\n                                \"title\": \"Type\",\n                                \"enum\": [\n                                    \"section\"\n                                ],\n                                \"type\": \"string\"\n                            },\n                            \"text\": {\n                                \"$ref\": \"#/definitions/BlockTextObject\"\n                            },\n                            \"fields\": {\n                                \"title\": \"Fields\",\n                                \"maxItems\": 10,\n                                \"type\": \"array\",\n                                \"items\": {\n                                    \"$ref\": \"#/definitions/BlockTextObject\"\n                                }\n                            }\n                        },\n                        \"required\": [\n                            \"type\"\n                        ],\n                        \"additionalProperties\": false\n                    }\n                }\n            }\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ApiUrl}}/v1/connectors",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"connectors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Slack Workflow",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"SlackWebhook Demo 1\",\n  \"schema_version\": 1,\n  \"actions\": [\n    {\n      \"connector_id\": \"{{SlackConnectorId}}\",\n      \"order\": 1,\n      \"type\": \"PostMessage\",\n      \"description\": \"Sends a message to a Slack Channel\",\n      \"parameters\": {\n        \"webhook_path\": \"{{Slack Channel Incoming Webhook}}\",\n        \"body\": {\n            \"text\": \"Hello from Flexli!\"\n        }\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ApiUrl}}/v1/workflows",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"workflows"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Jump into using Flexli Engine with an example Slack connector and workflow."
+		},
+		{
+			"name": "Connectors V1",
+			"item": [
+				{
+					"name": "Create Connector",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"string\",\n  \"name\": \"string\",\n  \"description\": \"string\",\n  \"schema_version\": 1,\n  \"config\": {\n    \"host\": \"string\",\n    \"base_path\": \"string\",\n    \"credentials\": {},\n    \"default_headers\": {\n      \"Content-Type\": \"application/json\"\n    }\n  },\n  \"events\": [\n    {\n      \"type\": \"string\",\n      \"name\": \"string\",\n      \"description\": \"string\",\n      \"schema\": {}\n    }\n  ],\n  \"actions\": [\n    {\n      \"type\": \"string\",\n      \"name\": \"string\",\n      \"description\": \"string\",\n      \"method\": \"post\",\n      \"path\": \"string\",\n      \"body\": \"string\",\n      \"parameters\": {}\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ApiUrl}}/v1/connectors",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"connectors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read Connector",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ApiUrl}}/v1/connectors/:id",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"connectors",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Connector",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{ApiUrl}}/v1/connectors/:id",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"connectors",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Connectors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ApiUrl}}/v1/connectors",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"connectors"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Manage API connectors for your workflows."
+		},
+		{
+			"name": "Workflows V1",
+			"item": [
+				{
+					"name": "Create Workflow",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"string\",\n  \"description\": \"string\",\n  \"schema_version\": 1,\n  \"enabled\": true,\n  \"actions\": [\n    {\n      \"type\": \"string\",\n      \"description\": \"string\",\n      \"order\": 1,\n      \"condition\": {},\n      \"variables\": {},\n      \"transform\": {}\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ApiUrl}}/v1/workflows",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"workflows"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read Workflow Version",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ApiUrl}}/v1/workflows/:id/version/:version",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"workflows",
+								":id",
+								"version",
+								":version"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								},
+								{
+									"key": "version",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Workflow Version",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{ApiUrl}}/v1/workflows/:id/version/:version",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"workflows",
+								":id",
+								"version",
+								":version"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								},
+								{
+									"key": "version",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Workflows",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ApiUrl}}/v1/workflows",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"workflows"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Create and manage workflows."
+		},
+		{
+			"name": "Run Workflow V1",
+			"item": [
+				{
+					"name": "Run Workflow Version",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{ApiUrl}}/v1/run-workflow/:id/version/:version",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"run-workflow",
+								":id",
+								"version",
+								":version"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "01HFAM3K4ZMW1GZ1YBMKEDZNSN"
+								},
+								{
+									"key": "version",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Run your workflows."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Run History V1",
+			"item": [
+				{
+					"name": "List Run History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ApiUrl}}/v1/run-history",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"run-history"
+							],
+							"query": [
+								{
+									"key": "workflow",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": null,
+									"disabled": true
+								}
+							]
+						},
+						"description": "View the history of your workflows, and individual logs of your runs."
+					},
+					"response": []
+				},
+				{
+					"name": "List Run History By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{ApiUrl}}/v1/run-history/:run_id",
+							"host": [
+								"{{ApiUrl}}"
+							],
+							"path": [
+								"v1",
+								"run-history",
+								":run_id"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "run_id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "client_authentication",
+				"value": "body",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "{{AuthUrl}}/oauth2/token",
+				"type": "string"
+			},
+			{
+				"key": "tokenName",
+				"value": "Flexli Token",
+				"type": "string"
+			},
+			{
+				"key": "clientSecret",
+				"value": "{{ClientSecret}}",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "{{ClientId}}",
+				"type": "string"
+			},
+			{
+				"key": "grant_type",
+				"value": "client_credentials",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ClientId",
+			"value": ""
+		},
+		{
+			"key": "ClientSecret",
+			"value": ""
+		},
+		{
+			"key": "AuthUrl",
+			"value": "https://auth.flexli.app"
+		},
+		{
+			"key": "ApiUrl",
+			"value": "https://api.flexli.app"
+		}
+	]
+}
