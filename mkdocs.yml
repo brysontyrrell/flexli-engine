@@ -8,6 +8,7 @@ site_dir: build/docs/
 nav:
   - Home: index.md
   - Tutorial: tutorial.md
+  - API Quickstart: api_quickstart.md
   - Authoring:
     - Expressions: authoring/expressions.md
     - Connectors: authoring/connectors.md

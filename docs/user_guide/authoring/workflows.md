@@ -32,7 +32,7 @@ Use conditions on events and actions to control workflow behavior. A condition i
 
 The rules of a condition are simple. The outer operator of the condition is either an `and`, requiring all criteria evaluate to `true`; or `or`, requiring at least one must evaluate to `true`. The same behavior applies to criteria and evaluating the attributes. A condition only succeeds if the resulting evaluation is a boolean `true`.
 
-Criteria attributes evaluate against the workflow state. The `attribute` field _must_ be an expression that references a location in the state. The `value` can be either a constant that matches the `type`, or an expression referencing a location within the state. The `operator` that can be used in the evaluation varies across the different types (see the [api docs](./api) for exact options).
+Criteria attributes evaluate against the workflow state. The `attribute` field _must_ be an expression that references a location in the state. The `value` can be either a constant that matches the `type`, or an expression referencing a location within the state. The `operator` that can be used in the evaluation varies across the different types (see the [api docs](https://brysontyrrell.github.io/flexli-engine/api) for exact options).
 
 ### Failure Modes
 

@@ -25,7 +25,7 @@ The `config` contains the host and base path that are used for all _**Actions**_
 
 The `host` must be a fully qualified domain name without a scheme or path. HTTPS is enforced by the engine for all outbound connections. The `base_path` will be prepended to the `path` of every action defined in this connector. This base path value may be the API version (e.g. `v1`) or the API's path off the service host (e.g. `api`).
 
-!!! note "The `base_path` is an optional value. Many of the properties described in this walkthrough are. Refer to then [API docs](../api) for a complete reference on required and optional properties."
+!!! note "The `base_path` is an optional value. Many of the properties described in this walkthrough are. Refer to then [API docs](https://brysontyrrell.github.io/flexli-engine/api) for a complete reference on required and optional properties."
 
 The `default_headers` will also apply to every action, cutting down on the need to write repetitive definitions, but they may also be overridden in the action. A header of the same key name in an action will take precedence over the default.
 
@@ -107,7 +107,7 @@ When this action is used in a workflow, the values that the author sets for `web
 
 ### Create the Connector
 
-The JSON definition of this connector will be passed to the [**_Create a Connector_**](../api/#tag/Connectors/paths/~1v1~1connectors/post) API. A success response will include the unique ID of the connector that will be used in workflows.
+The JSON definition of this connector will be passed to the [**_Create a Connector_**](https://brysontyrrell.github.io/flexli-engine/api/#tag/Connectors/paths/~1v1~1connectors/post) API. A success response will include the unique ID of the connector that will be used in workflows.
 
 ```json title="Connector Created Response"
 {
@@ -234,7 +234,7 @@ The `pqrameters` are determined entirely by the schema of the connector action's
 
 ### Create the Workflow
 
-The JSON definition of this connector will be passed to the [**_Create a Workflow_**](../api/#tag/Workflows/paths/~1v1~1workflows/post) API. A success response will include the unique ID of the workflow that can be used to run it with the Run API (and other methods as well!).
+The JSON definition of this connector will be passed to the [**_Create a Workflow_**](https://brysontyrrell.github.io/flexli-engine/api/#tag/Workflows/paths/~1v1~1workflows/post) API. A success response will include the unique ID of the workflow that can be used to run it with the Run API (and other methods as well!).
 
 ```json title="Workflow Created Response"
 {

@@ -30,4 +30,6 @@ Learn more in [Authoring Connectors: Defining Events](authoring/connectors.md#de
 
 ## API Documentation
 
-The OpenAPI documentation can be viewed at [API Docs](./api).
+The OpenAPI documentation can be viewed at [API Docs](https://brysontyrrell.github.io/flexli-engine/api).
+
+You can learn more about other resources for exploring the API in the [API Quickstart](api_quickstart.md) section.
