@@ -63,7 +63,10 @@ Resources:
       StageName: latest
       # OpenApiVersion: '3.0.2'
       # MergeDefinitions: true
+      TracingEnabled: true
+      # ApiKeySourceType: HEADER
       Auth:
+        # ApiKeyRequired: true
         DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
@@ -83,9 +86,8 @@ Resources:
       MethodSettings:
         - HttpMethod: "*"
           ResourcePath: "/*"
-          ThrottlingBurstLimit: 5
-          ThrottlingRateLimit: 10
-      TracingEnabled: true
+          ThrottlingBurstLimit: 60
+          ThrottlingRateLimit: 120
       EndpointConfiguration:
         Type: REGIONAL
 
