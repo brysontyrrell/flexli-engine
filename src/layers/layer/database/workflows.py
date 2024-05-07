@@ -1,18 +1,29 @@
+import logging
+import os
 from typing import Optional, Union
 
 from boto3.dynamodb.conditions import Attr, Key
+from boto3.dynamodb.types import TypeSerializer
 from botocore.exceptions import ClientError
 from ulid import ULID
 
 from apis.models import NotFound
+from aws_utils import get_boto3_client, get_boto3_resource
+
+TABLE_NAME = os.getenv("TABLE_NAME")
+
+dynamodb_client = get_boto3_client("dynamodb")
+dynamodb_table = get_boto3_resource("dynamodb").Table(TABLE_NAME)
+
+type_serializer = TypeSerializer()
 
 
-def create_workflow(table_resource, tenant_id: str, data: dict) -> str:
+def create_workflow(tenant_id: str, data: dict) -> str:
     """Write a new workflow for a tenant to the database."""
+    transaction_items = []
     workflow_id = str(ULID())
 
-    # TODO: Needs to be transaction to write the release item
-    table_item_keys = {
+    new_workflow_item = {
         "pk": f"T#{tenant_id}#W#{workflow_id}",
         "sk": "V#1",
         "lsi1pk": f"T#{tenant_id}#W",
@@ -30,21 +41,51 @@ def create_workflow(table_resource, tenant_id: str, data: dict) -> str:
         and data["enabled"] is True
         and data["source"]["connector_type"] not in ["Flexli:CoreV1:Schedule"]
     ):
-        table_item_keys.update(
+        new_workflow_item.update(
             {
                 "gsi1pk": f"T#{tenant_id}#C#{data['source']['connector_id']}",
                 "gsi1sk": f"E#{data['source']['type']}",
             }
         )
 
-    table_resource.put_item(
-        Item=dict(
-            **table_item_keys,
-            **data,
-        ),
-        ConditionExpression="attribute_not_exists(sk)",
+    new_workflow_item.update(data)
+
+    transaction_items.append(
+        {
+            "Put": {
+                "Item": type_serializer.serialize(new_workflow_item)["M"],
+                "ConditionExpression": f"attribute_not_exists(sk)",
+                "TableName": TABLE_NAME,
+            },
+        }
     )
 
+    # Workflow Release Version item
+    transaction_items.append(
+        {
+            "Put": {
+                "Item": type_serializer.serialize(
+                    {
+                        "pk": f"T#{tenant_id}#W#{workflow_id}",
+                        "sk": "R",
+                        "lsi1pk": f"T#{tenant_id}#W#R",
+                        "lsi1sk": f"W#{workflow_id}",
+                        "id": workflow_id,
+                        "name": data["name"],
+                        "description": data["description"],
+                        "version": 1,
+                        "schema_version": data["schema_version"],
+                        "is_release_version": True,
+                        "metadata": {"tenant_id": tenant_id},
+                    }
+                )["M"],
+                "TableName": TABLE_NAME,
+            },
+        }
+    )
+    logging.debug(transaction_items)
+
+    dynamodb_client.transact_write_items(TransactItems=transaction_items)
     return workflow_id
 
 
