@@ -273,6 +273,18 @@
 							"path": [
 								"v1",
 								"workflows"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "releases-only",
+									"value": "true",
+									"disabled": true
+								}
 							]
 						}
 					},

@@ -37,10 +37,12 @@ def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResp
         dynamodb_table,
         tenant_id=event.tenant_id,
         workflow_id=request_params.id,
-        releases_only=request_params.release,
+        releases_only=request_params.releases_only,
     )
 
     return ApiResponse(
         200,
-        WorkflowsList.model_validate({"items": [item for item in response]}).model_dump(),
+        WorkflowsList.model_validate(
+            {"items": [item for item in response]}
+        ).model_dump(),
     )
