@@ -2,7 +2,6 @@ import os
 
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from pydantic import parse_obj_as
 
 from apis.middleware import api_middleware_v1
 from apis.models import ApiMiddlewareEvent, ApiResponse
@@ -31,5 +30,5 @@ def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResp
     )
 
     return ApiResponse(
-        200, parse_obj_as(WorkflowsV1Read, response).dict(exclude_none=True)
+        200, WorkflowsV1Read.model_validate(response).model_dump(exclude_none=True)
     )
