@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from typing import Optional, Union
 
 from boto3.dynamodb.conditions import Attr, Key
@@ -23,16 +24,23 @@ def create_workflow(tenant_id: str, data: dict) -> str:
     transaction_items = []
     workflow_id = str(ULID())
 
-    new_workflow_item = {
-        "pk": f"T#{tenant_id}#W#{workflow_id}",
-        "sk": "V#1",
-        "lsi1pk": f"T#{tenant_id}#W",
-        "lsi1sk": f"W#{workflow_id}#V#1",
-        "id": workflow_id,
-        "version": 1,
-        "is_release_version": True,
-        "metadata": {"tenant_id": tenant_id},
-    }
+    new_workflow_item = dict(
+        {
+            "pk": f"T#{tenant_id}#W#{workflow_id}",
+            "sk": "V#1",
+            "_item_type": "WorkflowVersion",
+            "lsi1pk": f"T#{tenant_id}#W",
+            "lsi1sk": f"W#{workflow_id}#V#1",
+            "id": workflow_id,
+            "version": 1,
+            "is_release_version": True,
+            "metadata": {
+                "tenant_id": tenant_id,
+                "created_at": int(time.time()),
+            },
+        },
+        **data,
+    )
 
     # GSI1 is only populated if a new workflow is enabled and is an event type
     # (this GSI should only exist on the release version)
@@ -47,8 +55,6 @@ def create_workflow(tenant_id: str, data: dict) -> str:
                 "gsi1sk": f"E#{data['source']['type']}",
             }
         )
-
-    new_workflow_item.update(data)
 
     transaction_items.append(
         {
@@ -68,6 +74,7 @@ def create_workflow(tenant_id: str, data: dict) -> str:
                     {
                         "pk": f"T#{tenant_id}#W#{workflow_id}",
                         "sk": "R",
+                        "_item_type": "WorkflowReleaseVersion",
                         "lsi1pk": f"T#{tenant_id}#W#R",
                         "lsi1sk": f"W#{workflow_id}",
                         "id": workflow_id,

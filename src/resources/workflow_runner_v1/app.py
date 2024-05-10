@@ -150,6 +150,7 @@ class FlexliCoreV1:
             Item={
                 "pk": f"T#{self._runner.tenant_id}#WH#{self._runner.workflow_id}",
                 "sk": f"RH#{new_run_id}",
+                "_item_type": "WorkflowRunHistory",
                 "gsi1pk": f"T#{self._runner.tenant_id}#WH",
                 "gsi1sk": f"RH#{new_run_id}",
                 "run_id": new_run_id,
@@ -272,6 +273,7 @@ class WorkflowRunnerV1:
         item = {
             "pk": f"T#{self.tenant_id}#RH#{self.parent_run_id if self.parent_run_id else self.run_id}",
             "sk": f"TS#{timestamp}",
+            "_item_type": "WorkflowRunHistoryUpdate",
             "status": status,
             "reason": reason,
             "time": timestamp + "Z",
@@ -547,12 +549,12 @@ def run_workflow_handler(record: SQSRecord):
             Item={
                 "pk": f"T#{item['tenant_id']}#WH#{item['workflow_id']}",
                 "sk": f"RH#{item['run_id']}",
+                "_item_type": "WorkflowRunHistory",
                 "gsi1pk": f"T#{item['tenant_id']}#WH",
                 "gsi1sk": f"RH#{item['run_id']}",
                 "run_id": item["run_id"],
                 "workflow_id": item["workflow_id"],
                 "workflow_version": item["workflow_version"],
-                # TODO: Passed as 'workflow_name' by schedules - not consistent
                 "workflow_name": item["workflow_name"],
                 "status": "running",
                 "start_time": datetime.utcnow().isoformat(),

@@ -26,6 +26,7 @@ Globals:
     Environment:
       Variables:
         LOG_LEVEL: !Ref LogLevel
+        TABLE_NAME: !Ref MainTable
         MAIN_TABLE_NAME: !Ref MainTable
         EVENTS_QUEUE_URL: !Ref EventsQueue
         RUN_QUEUE_URL: !Ref RunQueue

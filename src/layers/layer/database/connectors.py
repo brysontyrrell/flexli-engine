@@ -1,3 +1,5 @@
+import time
+
 from boto3.dynamodb.conditions import Attr, Key
 from botocore.exceptions import ClientError
 from ulid import ULID
@@ -30,10 +32,15 @@ def create_connector(table_resource, tenant_id: str, data: dict) -> str:
             {
                 "pk": f"T#{tenant_id}#C#{connector_id}",
                 "sk": "A",
+                "_item_type": "ConnectorVersion",
                 "lsi1pk": f"T#{tenant_id}#C",
                 "lsi1sk": f"C#{connector_id}",
                 "id": connector_id,
                 "version": 1,
+                "metadata": {
+                    "tenant_id": tenant_id,
+                    "created_at": int(time.time()),
+                },
             },
             **data,
         ),

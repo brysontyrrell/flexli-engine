@@ -43,7 +43,7 @@ Globals:
     Architectures:
       - arm64
     Runtime: python3.10
-    MemorySize: 256
+    MemorySize: 512
     Handler: app.lambda_handler
     Tracing: Active
     Layers:
@@ -53,6 +53,7 @@ Globals:
         LOG_LEVEL: !Ref LogLevel
         DEFAULT_KEY_ID: !Ref DefaultKeyId
         TABLE_NAME: !Ref MainTableName
+        MAIN_TABLE_NAME: !Ref MainTableName
         WORKFLOW_HISTORY_V1_TABLE_NAME: !Ref WorkflowHistoryV1TableName
 
 Resources:

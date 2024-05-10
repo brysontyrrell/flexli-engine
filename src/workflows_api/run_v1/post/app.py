@@ -85,6 +85,7 @@ def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResp
         Item={
             "pk": f"T#{event.tenant_id}#WH#{workflow_id}",
             "sk": f"RH#{new_run_id}",
+            "_item_type": "WorkflowRunHistory",
             "gsi1pk": f"T#{event.tenant_id}#WH",
             "gsi1sk": f"RH#{new_run_id}",
             "run_id": new_run_id,

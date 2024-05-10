@@ -1,6 +1,12 @@
 from pydantic import BaseModel, ConfigDict
 
 
+class Tenant(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    name: str
+
+
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
     sub: str

@@ -47,7 +47,7 @@ def lambda_handler(event: DynamoDBRecord, context):
                     "workflow_version": workflow["version"],
                     # "workflow_schema_version": "",
                     "workflow_name": workflow["name"],
-                    "run_id": None,  # TODO: Runner must generate Run IDs if this is `null`
+                    "run_id": None,
                     "source_input": {},
                     "actions": workflow["actions"],
                 },
