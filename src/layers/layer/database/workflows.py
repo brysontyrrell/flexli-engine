@@ -8,7 +8,7 @@ from boto3.dynamodb.types import TypeSerializer
 from botocore.exceptions import ClientError
 from ulid import ULID
 
-from apis.models import NotFound
+from apis.models import Conflict, NotFound
 from aws_utils import get_boto3_client, get_boto3_resource
 
 TABLE_NAME = os.getenv("TABLE_NAME")
@@ -136,22 +136,38 @@ def read_workflow_release_version(
 def delete_workflow_version(
     table_resource, tenant_id: str, workflow_id: str, workflow_version: str
 ) -> None:
-    """Delete a workflow version for a tenant from the database."""
-    # TODO: If deleting a release, it must be the LAST version of the workflow
-    # list_workflows | limit 2
-    # if is_release_version and versions > 1 -> Conflict
+    """Delete a workflow version for a tenant from the database.
+
+    If deleting a release, it must be the LAST version of the workflow or an error will be raised.
+    """
+    condition_expression = Attr("sk").exists()
+
+    if (
+        table_resource.query(
+            Select="COUNT",
+            Limit=2,
+            KeyConditionExpression=Key("pk").eq(f"T#{tenant_id}#W#{workflow_id}")
+            & Key("sk").begins_with("V#"),
+        )["Count"]
+        > 1
+    ):
+        condition_expression = condition_expression & Attr("is_release_version").eq(
+            False
+        )
+
     try:
         table_resource.delete_item(
             Key={
                 "pk": f"T#{tenant_id}#W#{workflow_id}",
                 "sk": f"V#{workflow_version}",
             },
-            ConditionExpression=Attr("sk").exists(),
+            ConditionExpression=condition_expression,
         )
     except ClientError as error:
         if error.response["Error"]["Code"] == "ConditionalCheckFailedException":
-            raise NotFound(
-                "Workflow version not found",
+            raise Conflict(
+                "The workflow version was not found, or you are attempting to "
+                "delete the release version before it has been reassigned",
                 details={"id": workflow_id, "version": workflow_version},
             )
         else:
