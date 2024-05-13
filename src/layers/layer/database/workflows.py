@@ -24,13 +24,8 @@ def create_workflow(tenant_id: str, data: dict) -> str:
     transaction_items = []
     workflow_id = str(ULID())
 
-    new_workflow_item = dict(
+    workflow_item = dict(
         {
-            "pk": f"T#{tenant_id}#W#{workflow_id}",
-            "sk": "V#1",
-            "_item_type": "WorkflowVersion",
-            "lsi1pk": f"T#{tenant_id}#W",
-            "lsi1sk": f"W#{workflow_id}#V#1",
             "id": workflow_id,
             "version": 1,
             "is_release_version": True,
@@ -42,14 +37,36 @@ def create_workflow(tenant_id: str, data: dict) -> str:
         **data,
     )
 
-    # GSI1 is only populated if a new workflow is enabled and is an event type
-    # (this GSI should only exist on the release version)
+    workflow_a_item = dict(
+        {
+            "pk": f"T#{tenant_id}#W#{workflow_id}",
+            "sk": "V#1",
+            "_item_type": "WorkflowVersion",
+            "lsi1pk": f"T#{tenant_id}#W",
+            "lsi1sk": f"W#{workflow_id}#V#1",
+        },
+        **workflow_item,
+    )
+
+    workflow_r_item = dict(
+        {
+            "pk": f"T#{tenant_id}#W#{workflow_id}",
+            "sk": "R",
+            "_item_type": "WorkflowReleaseVersion",
+            "lsi1pk": f"T#{tenant_id}#W#R",
+            "lsi1sk": f"W#{workflow_id}",
+        },
+        **workflow_item,
+    )
+
+    # Release item GSI1 is only populated if the workflow is enabled and is an event type
+    # (this GSI only exists on the release item)
     if (
         data.get("source") is not None
         and data["enabled"] is True
         and data["source"]["connector_type"] not in ["Flexli:CoreV1:Schedule"]
     ):
-        new_workflow_item.update(
+        workflow_r_item.update(
             {
                 "gsi1pk": f"T#{tenant_id}#C#{data['source']['connector_id']}",
                 "gsi1sk": f"E#{data['source']['type']}",
@@ -59,7 +76,7 @@ def create_workflow(tenant_id: str, data: dict) -> str:
     transaction_items.append(
         {
             "Put": {
-                "Item": type_serializer.serialize(new_workflow_item)["M"],
+                "Item": type_serializer.serialize(workflow_a_item)["M"],
                 "ConditionExpression": f"attribute_not_exists(sk)",
                 "TableName": TABLE_NAME,
             },
@@ -70,22 +87,7 @@ def create_workflow(tenant_id: str, data: dict) -> str:
     transaction_items.append(
         {
             "Put": {
-                "Item": type_serializer.serialize(
-                    {
-                        "pk": f"T#{tenant_id}#W#{workflow_id}",
-                        "sk": "R",
-                        "_item_type": "WorkflowReleaseVersion",
-                        "lsi1pk": f"T#{tenant_id}#W#R",
-                        "lsi1sk": f"W#{workflow_id}",
-                        "id": workflow_id,
-                        "name": data["name"],
-                        "description": data["description"],
-                        "version": 1,
-                        "schema_version": data["schema_version"],
-                        "is_release_version": True,
-                        "metadata": {"tenant_id": tenant_id},
-                    }
-                )["M"],
+                "Item": type_serializer.serialize(workflow_r_item)["M"],
                 "TableName": TABLE_NAME,
             },
         }
