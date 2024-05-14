@@ -83,10 +83,10 @@ Resources:
         HostedZoneId: !Ref HostedZoneId
         CertificateArn: !Ref CertificateArn
 
-  WorkflowsScheduler:
+  WorkflowManagement:
     Type: AWS::Serverless::Application
     Properties:
-      Location: ./src/workflows_scheduler/template.yaml
+      Location: ./src/workflow_management/template.yaml
       Parameters:
         LogLevel: !Ref LogLevel
         SharedLayerArn: !Ref Layer

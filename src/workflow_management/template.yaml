@@ -43,7 +43,8 @@ Globals:
 Resources:
 
 # Scenarios:
-  # 1. New Workflow -> Automatically is release version, and is enabled (create new schedule)
+  # 1. New Workflow -> Automatically is release version, and is enabled
+    # 1a. Release Version contains Schedule source -> create schedule
   # 2. Promoted Workflow Version -> There will be two events
     # 2a. MODIFIED Workflow Version - is_release changed to False (delete old schedule)
     # 2b. MODIFIED Workflow Version - is_release changed to True (create new schedule)
