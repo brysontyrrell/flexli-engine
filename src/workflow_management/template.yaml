@@ -52,6 +52,51 @@ Resources:
   # 4. Workflow Disabled -> is_release is True, and enabled -> disabled (delete schedule)
   # 4. Workflow Enabled -> is_release is True, and disabled -> enabled (create schedule)
 
+  DeleteReleaseVersionV1:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Sub ${AWS::StackName}-DeleteReleaseVersionV1
+      Type: EXPRESS
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MainTableName
+      DefinitionSubstitutions:
+        MainTableName: !Ref MainTableName
+      Definition:
+        StartAt: DeleteReleaseVersion
+        States:
+          DeleteReleaseVersion:
+            Type: Task
+            Resource: arn:aws:states:::dynamodb:deleteItem
+            Parameters:
+              TableName: ${MainTableName}
+              Key:
+                pk:
+                  S.$: $.dynamodb.OldImage.pk.S
+                sk:
+                  S: R
+            End: true
+      Events:
+        removed:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref MainTableEventBusName
+            InputPath: $.detail
+            Pattern:
+              detail:
+                eventName:
+                  - REMOVE
+                eventSource:
+                  - 'aws:dynamodb'
+                dynamodb:
+                  OldImage:
+                    _item_type:
+                      S:
+                        - WorkflowVersion
+                    is_release_version:
+                      BOOL:
+                        - true
+
   SchedulerRole:
     Type: AWS::IAM::Role
     Properties:
@@ -100,6 +145,9 @@ Resources:
                   - 'aws:dynamodb'
                 dynamodb:
                   NewImage:
+                    _item_type:
+                      S:
+                        - 'WorkflowReleaseVersion'
                     source:
                       M:
                         connector_type:
@@ -200,6 +248,9 @@ Resources:
                   - 'aws:dynamodb'
                 dynamodb:
                   OldImage:
+                    _item_type:
+                      S:
+                        - 'WorkflowReleaseVersion'
                     source:
                       M:
                         connector_type:
@@ -224,6 +275,9 @@ Resources:
                   - 'aws:dynamodb'
                 dynamodb:
                   NewImage:
+                    _item_type:
+                      S:
+                        - 'WorkflowReleaseVersion'
                     is_release_version:
                       BOOL:
                         - false
