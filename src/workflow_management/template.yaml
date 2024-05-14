@@ -132,7 +132,7 @@ Resources:
                 - iam:PassRole
               Resource: !GetAtt SchedulerRole.Arn
       Events:
-        new:
+        created:
           Type: EventBridgeRule
           Properties:
             EventBusName: !Ref MainTableEventBusName
@@ -153,13 +153,10 @@ Resources:
                         connector_type:
                           S:
                             - 'Flexli:CoreV1:Schedule'
-                    is_release_version:
-                      BOOL:
-                        - true
                     enabled:
                       BOOL:
                         - true
-        promoted:
+        added:
           Type: EventBridgeRule
           Properties:
             EventBusName: !Ref MainTableEventBusName
@@ -172,21 +169,23 @@ Resources:
                   - 'aws:dynamodb'
                 dynamodb:
                   NewImage:
+                    _item_type:
+                      S:
+                        - 'WorkflowReleaseVersion'
                     source:
                       M:
                         connector_type:
                           S:
                             - 'Flexli:CoreV1:Schedule'
-                    is_release_version:
-                      BOOL:
-                        - true
                     enabled:
                       BOOL:
                         - true
                   OldImage:
-                    is_release_version:
-                      BOOL:
-                        - false
+                    source:
+                      M:
+                        connector_type:
+                          S:
+                            - anything-but: 'Flexli:CoreV1:Schedule'
         enabled:
           Type: EventBridgeRule
           Properties:
@@ -200,27 +199,87 @@ Resources:
                   - 'aws:dynamodb'
                 dynamodb:
                   NewImage:
+                    _item_type:
+                      S:
+                        - 'WorkflowReleaseVersion'
                     source:
                       M:
                         connector_type:
                           S:
                             - 'Flexli:CoreV1:Schedule'
-                    is_release_version:
-                      BOOL:
-                        - true
                     enabled:
                       BOOL:
                         - true
                   OldImage:
+                    source:
+                      M:
+                        connector_type:
+                          S:
+                            - 'Flexli:CoreV1:Schedule'
                     enabled:
                       BOOL:
                         - false
-
 
   CreateScheduleV1Logs:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub /aws/lambda/${CreateScheduleV1}
+      RetentionInDays: 30
+
+  UpdateScheduleV1:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./update_schedule_v1
+      Policies:
+        - Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - scheduler:UpdateSchedule
+              Resource: !Sub 'arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/*/*'
+            - Effect: Allow
+              Action:
+                - iam:PassRole
+              Resource: !GetAtt SchedulerRole.Arn
+      Events:
+        modified:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref MainTableEventBusName
+            InputPath: $.detail
+            Pattern:
+              detail:
+                eventName:
+                  - MODIFY
+                eventSource:
+                  - 'aws:dynamodb'
+                dynamodb:
+                  NewImage:
+                    _item_type:
+                      S:
+                        - 'WorkflowReleaseVersion'
+                    source:
+                      M:
+                        connector_type:
+                          S:
+                            - 'Flexli:CoreV1:Schedule'
+                    enabled:
+                      BOOL:
+                        - true
+                  OldImage:
+                    source:
+                      M:
+                        connector_type:
+                          S:
+                            - 'Flexli:CoreV1:Schedule'
+                    enabled:
+                      BOOL:
+                        - true
+
+  UpdateScheduleV1Logs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${UpdateScheduleV1}
       RetentionInDays: 30
 
   DeleteScheduleV1:
@@ -256,13 +315,10 @@ Resources:
                         connector_type:
                           S:
                             - 'Flexli:CoreV1:Schedule'
-                    is_release_version:
-                      BOOL:
-                        - true
                     enabled:
                       BOOL:
                         - true
-        demoted:
+        removed:
           Type: EventBridgeRule
           Properties:
             EventBusName: !Ref MainTableEventBusName
@@ -278,18 +334,17 @@ Resources:
                     _item_type:
                       S:
                         - 'WorkflowReleaseVersion'
-                    is_release_version:
-                      BOOL:
-                        - false
+                    source:
+                      M:
+                        connector_type:
+                          S:
+                            - anything-but: 'Flexli:CoreV1:Schedule'
                   OldImage:
                     source:
                       M:
                         connector_type:
                           S:
                             - 'Flexli:CoreV1:Schedule'
-                    is_release_version:
-                      BOOL:
-                        - true
                     enabled:
                       BOOL:
                         - true
@@ -306,18 +361,18 @@ Resources:
                   - 'aws:dynamodb'
                 dynamodb:
                   NewImage:
-                    enabled:
-                      BOOL:
-                        - false
-                  OldImage:
+                    _item_type:
+                      S:
+                        - 'WorkflowReleaseVersion'
                     source:
                       M:
                         connector_type:
                           S:
                             - 'Flexli:CoreV1:Schedule'
-                    is_release_version:
+                    enabled:
                       BOOL:
-                        - true
+                        - false
+                  OldImage:
                     enabled:
                       BOOL:
                         - true
