@@ -21,17 +21,9 @@ client = boto3.client("scheduler")
 
 
 @event_source(data_class=DynamoDBRecord)
-def create_handler(event: DynamoDBRecord, context):
-    create_schedule(image=event.dynamodb.new_image)
+def lambda_handler(event: DynamoDBRecord, context):
+    logger.debug(event.raw_event)
 
-
-@event_source(data_class=DynamoDBRecord)
-def delete_handler(event: DynamoDBRecord, context):
-    delete_schedule(image=event.dynamodb.old_image)
-
-
-@event_source(data_class=DynamoDBRecord)
-def modified_handler(event: DynamoDBRecord, context):
     new_image = event.dynamodb.new_image
     old_image = event.dynamodb.old_image
 
@@ -83,8 +75,8 @@ def modified_handler(event: DynamoDBRecord, context):
     # Removed
     elif (
         old_image_enabled
-        and old_image_source_type == "Flexli:CoreV1:Schedule"
         and new_image_source_type != "Flexli:CoreV1:Schedule"
+        and old_image_source_type == "Flexli:CoreV1:Schedule"
     ):
         logger.info("Deleting schedule")
         delete_schedule(image=new_image)
@@ -106,39 +98,44 @@ def create_schedule(image: dict[str, Any]):
     tenant_id = image["metadata"]["tenant_id"]
 
     # TODO: Schedule groups must already exists - can only contain letters (no numbers, no ULID)
-    response = client.create_schedule(
-        Name=f"{tenant_id}-{image['id']}",
-        # GroupName=tenant_id,
-        # Description="string",
-        # ClientToken="string",
-        ScheduleExpression=schedule_expression(image=image),
-        # ScheduleExpressionTimezone="UTC",
-        FlexibleTimeWindow={"Mode": "OFF"},
-        State="ENABLED",
-        Target={
-            "Arn": RUN_QUEUE_ARN,
-            "RoleArn": SCHEDULER_ROLE_ARN,
-            "Input": json.dumps(
-                {
-                    "tenant_id": tenant_id,
-                    "workflow_id": image["id"],
-                    "workflow_version": image["version"],
-                    # "workflow_schema_version": "",
-                    "workflow_name": image["name"],
-                    "run_id": None,
-                    "source_input": {},
-                    "actions": image["actions"],
-                },
-                cls=DecimalEncoder,
-            ),
-            # "DeadLetterConfig": {"Arn": "string"},
-            # "RetryPolicy": {
-            #     "MaximumEventAgeInSeconds": 123,
-            #     "MaximumRetryAttempts": 123,
-            # },
-        },
-    )
-    logger.debug(response)
+    try:
+        response = client.create_schedule(
+            Name=f"{tenant_id}-{image['id']}",
+            # GroupName=tenant_id,
+            # Description="string",
+            # ClientToken="string",
+            ScheduleExpression=schedule_expression(image=image),
+            # ScheduleExpressionTimezone="UTC",
+            FlexibleTimeWindow={"Mode": "OFF"},
+            State="ENABLED",
+            Target={
+                "Arn": RUN_QUEUE_ARN,
+                "RoleArn": SCHEDULER_ROLE_ARN,
+                "Input": json.dumps(
+                    {
+                        "tenant_id": tenant_id,
+                        "workflow_id": image["id"],
+                        "workflow_version": image["version"],
+                        # "workflow_schema_version": "",
+                        "workflow_name": image["name"],
+                        "run_id": None,
+                        "source_input": {},
+                        "actions": image["actions"],
+                    },
+                    cls=DecimalEncoder,
+                ),
+                # "DeadLetterConfig": {"Arn": "string"},
+                # "RetryPolicy": {
+                #     "MaximumEventAgeInSeconds": 123,
+                #     "MaximumRetryAttempts": 123,
+                # },
+            },
+        )
+    except ClientError as error:
+        # ResourceNotFoundException
+        logger.warning(error)
+    else:
+        logger.debug(response)
 
 
 def delete_schedule(image: dict[str, Any]):
@@ -150,33 +147,38 @@ def delete_schedule(image: dict[str, Any]):
         # ResourceNotFoundException
         logger.warning(error)
     else:
-        logger.info(response)
+        logger.debug(response)
 
 
 def update_schedule(image: dict[str, Any]):
     tenant_id = image["metadata"]["tenant_id"]
 
-    response = client.update_schedule(
-        Name=f"{tenant_id}-{image['id']}",
-        ScheduleExpression=schedule_expression(image=image),
-        FlexibleTimeWindow={"Mode": "OFF"},
-        State="ENABLED",
-        Target={
-            "Arn": RUN_QUEUE_ARN,
-            "RoleArn": SCHEDULER_ROLE_ARN,
-            "Input": json.dumps(
-                {
-                    "tenant_id": tenant_id,
-                    "workflow_id": image["id"],
-                    "workflow_version": image["version"],
-                    # "workflow_schema_version": "",
-                    "workflow_name": image["name"],
-                    "run_id": None,
-                    "source_input": {},
-                    "actions": image["actions"],
-                },
-                cls=DecimalEncoder,
-            ),
-        },
-    )
-    logger.debug(response)
+    try:
+        response = client.update_schedule(
+            Name=f"{tenant_id}-{image['id']}",
+            ScheduleExpression=schedule_expression(image=image),
+            FlexibleTimeWindow={"Mode": "OFF"},
+            State="ENABLED",
+            Target={
+                "Arn": RUN_QUEUE_ARN,
+                "RoleArn": SCHEDULER_ROLE_ARN,
+                "Input": json.dumps(
+                    {
+                        "tenant_id": tenant_id,
+                        "workflow_id": image["id"],
+                        "workflow_version": image["version"],
+                        # "workflow_schema_version": "",
+                        "workflow_name": image["name"],
+                        "run_id": None,
+                        "source_input": {},
+                        "actions": image["actions"],
+                    },
+                    cls=DecimalEncoder,
+                ),
+            },
+        )
+    except ClientError as error:
+        # ResourceNotFoundException
+        logger.warning(error)
+    else:
+        logger.debug(response)
