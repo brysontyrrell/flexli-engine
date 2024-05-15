@@ -7,6 +7,7 @@ import jmespath
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 from jsonschema import Draft202012Validator
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
+from pydantic_core import ErrorDetails
 from ulid import ULID
 
 
@@ -42,6 +43,7 @@ class PathParams(BaseModel):
     #         if k.endswith("_id"):
     #             setattr(self, k, ULID.from_str(getattr(self, k)))
     #     return self
+
 
 @dataclass
 class ApiResponse:
@@ -142,13 +144,16 @@ def json_schema_validation(
         return None
 
 
-def model_validation_error_path(location: tuple, model_name: str) -> str:
+def model_validation_error_path(error_details: ErrorDetails) -> str:
     path = ""
-    for i in location:
-        if i in ("__root__", model_name):
-            continue
-        elif isinstance(i, int):
+    for i in error_details["loc"]:
+        if isinstance(i, int):
             path += f"[{i}]"
+        elif i.startswith(("__root__", "Connector", "Workflow", "Query")):
+            continue
+        elif i.startswith("tagged-union["):
+            name = error_details["ctx"]["discriminator"].strip("'")
+            path += f".{name}"
         else:
             path += f".{i}"
     return path.lstrip(".")
@@ -157,24 +162,27 @@ def model_validation_error_path(location: tuple, model_name: str) -> str:
 def model_validation_error_details(error: ValidationError) -> dict:
     validation_errors = []
 
-    try:
-        # In Annotated models the evaluated model is nested in a
-        # `ValidationError` within the `args` of the root error.
-        model_name = error.args[0][0].exc.model.__name__
-    except AttributeError:
-        model_name = error.model.__name__
+    # try:
+    #     # In Annotated models the evaluated model is nested in a
+    #     # `ValidationError` within the `args` of the root error.
+    #     model_name = error.args[0][0].exc.model.__name__
+    # except (AttributeError, IndexError):
+    #     model_name = error.model.__name__
+    print(error.json())
 
-    print(model_name)
+    for error_details in error.errors():
+        error_path = model_validation_error_path(error_details=error_details)
+        error_msg = error_details["msg"]
 
-    for e in error.errors():
-        validation_errors.append(
-            {
-                "path": model_validation_error_path(
-                    location=e["loc"], model_name=model_name
-                ),
-                "description": e["msg"],
-            }
-        )
+        try:
+            if (ctx := error_details["ctx"]) and ctx["discriminator"]:
+                error_msg = (
+                    f"Value '{ctx['tag']}' must be one of {ctx['expected_tags']}"
+                )
+        except KeyError:
+            pass
+
+        validation_errors.append({"path": error_path, "description": error_msg})
 
     return {"validation_errors": validation_errors}
 
