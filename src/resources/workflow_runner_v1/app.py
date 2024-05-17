@@ -116,7 +116,6 @@ class FlexliCoreV1:
     ):
         # TODO: This code is shared ith the Run API and needs to be in a module
         workflow_data = read_workflow_version(
-            main_table,
             tenant_id=self._runner.tenant_id,
             workflow_id=workflow_id,
             workflow_version=workflow_version,

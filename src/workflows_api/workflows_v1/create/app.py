@@ -30,7 +30,7 @@ dynamodb_table = get_boto3_resource("dynamodb").Table(TABLE_NAME)
 
 
 @lru_cache
-def cached_read_connector(tenant_id: str, connector_id: str) -> dict:
+def read_connector_cached(tenant_id: str, connector_id: str) -> dict:
     return read_connector(
         table_resource=dynamodb_table,
         tenant_id=tenant_id,
@@ -48,7 +48,7 @@ def find_connector_by_id(
         (i for i in connectors_list if i["id"] == connector_id),
         None,
     ):
-        return cached_read_connector(tenant_id=tenant_id, connector_id=connector_id)
+        return read_connector_cached(tenant_id=tenant_id, connector_id=connector_id)
     else:
         raise BadRequest(
             error_code="InvalidConnectorId",
@@ -65,6 +65,7 @@ def find_item_by_key(items: list[dict], key: str, value: str) -> dict:
 
 @api_middleware_v1(input_validator=WorkflowsV1Create, output_validator=CreatedResponse)
 def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResponse:
+    logger.append_keys(tenant_id=event.tenant_id)
     tenant_id = event.tenant_id
     workflow_data = event.model_data
 

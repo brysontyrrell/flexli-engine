@@ -1,8 +1,4 @@
-import os
-
 from aws_lambda_powertools import Logger
-from aws_lambda_powertools.utilities.typing import LambdaContext
-import boto3
 from pydantic import ValidationError
 
 from apis.middleware import api_middleware_v1
@@ -13,15 +9,12 @@ from local import QueryStringParams, WorkflowsList
 
 logger = Logger()
 
-TABLE_NAME = os.getenv("TABLE_NAME")
-
-dynamodb_table = boto3.resource("dynamodb").Table(TABLE_NAME)
-
 
 @api_middleware_v1(output_validator=WorkflowsList)
-def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResponse:
+def lambda_handler(event: ApiMiddlewareEvent, context) -> ApiResponse:
     logger.append_keys(tenant_id=event.tenant_id)
 
+    # TODO: Move query validation to API middleware
     try:
         request_params = QueryStringParams.model_validate(
             event.source_event.query_string_parameters or {},
@@ -34,7 +27,6 @@ def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResp
         )
 
     response = list_workflows(
-        dynamodb_table,
         tenant_id=event.tenant_id,
         workflow_id=request_params.id,
         releases_only=request_params.releases_only,

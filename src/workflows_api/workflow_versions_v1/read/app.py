@@ -1,29 +1,27 @@
-import os
-
 from aws_lambda_powertools import Logger
-from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from apis.middleware import api_middleware_v1
-from apis.models import ApiMiddlewareEvent, ApiResponse
-from aws_utils import get_boto3_resource
+from apis.models import ApiMiddlewareEvent, ApiResponse, BadRequest
 from database.workflows import read_workflow_version
 
 from local import WorkflowsV1Read
 
 logger = Logger()
 
-TABLE_NAME = os.getenv("TABLE_NAME")
-
-dynamodb_table = get_boto3_resource("dynamodb").Table(TABLE_NAME)
-
 
 @api_middleware_v1
-def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResponse:
+def lambda_handler(event: ApiMiddlewareEvent, context) -> ApiResponse:
+    logger.append_keys(tenant_id=event.tenant_id)
+
     workflow_id = event.source_event.path_parameters["workflow_id"]
-    workflow_version = event.source_event.path_parameters["version"]
+    try:
+        workflow_version = int(event.source_event.path_parameters["version"])
+    except (TypeError, ValueError):
+        raise BadRequest(
+            error_code="ValidationError", description="Invalid version value"
+        )
 
     response = read_workflow_version(
-        dynamodb_table,
         tenant_id=event.tenant_id,
         workflow_id=workflow_id,
         workflow_version=workflow_version,

@@ -99,10 +99,10 @@ def create_workflow(tenant_id: str, data: dict) -> str:
 
 
 def read_workflow_version(
-    table_resource, tenant_id: str, workflow_id: str, workflow_version: str
+    tenant_id: str, workflow_id: str, workflow_version: int
 ) -> dict:
     """Read a workflow version for a tenant from the database."""
-    response = table_resource.get_item(
+    response = dynamodb_table.get_item(
         Key={
             "pk": f"T#{tenant_id}#W#{workflow_id}",
             "sk": f"V#{workflow_version}",
@@ -118,10 +118,10 @@ def read_workflow_version(
 
 
 def read_workflow_release_version(
-    table_resource, tenant_id: str, workflow_id: str
+    tenant_id: str, workflow_id: str
 ) -> Union[dict, None]:
     """Read a workflow's release version for a tenant from the database."""
-    response = table_resource.get_item(
+    response = dynamodb_table.get_item(
         Key={"pk": f"T#{tenant_id}#W#{workflow_id}", "sk": "R"}
     )
     try:
@@ -133,8 +133,12 @@ def read_workflow_release_version(
         )
 
 
+def update_workflow_release_version():
+    pass
+
+
 def delete_workflow_version(
-    table_resource, tenant_id: str, workflow_id: str, workflow_version: str
+    tenant_id: str, workflow_id: str, workflow_version: int
 ) -> None:
     """Delete a workflow version for a tenant from the database.
 
@@ -143,7 +147,7 @@ def delete_workflow_version(
     condition_expression = Attr("sk").exists()
 
     if (
-        table_resource.query(
+        dynamodb_table.query(
             Select="COUNT",
             Limit=2,
             KeyConditionExpression=Key("pk").eq(f"T#{tenant_id}#W#{workflow_id}")
@@ -156,7 +160,7 @@ def delete_workflow_version(
         )
 
     try:
-        table_resource.delete_item(
+        dynamodb_table.delete_item(
             Key={
                 "pk": f"T#{tenant_id}#W#{workflow_id}",
                 "sk": f"V#{workflow_version}",
@@ -175,7 +179,6 @@ def delete_workflow_version(
 
 
 def list_workflows(
-    table_resource,
     tenant_id: str,
     workflow_id: Optional[str] = None,
     releases_only: Optional[bool] = None,
@@ -214,7 +217,7 @@ def list_workflows(
             "KeyConditionExpression": Key("lsi1pk").eq(f"T#{tenant_id}#W"),
         }
 
-    response = table_resource.query(
+    response = dynamodb_table.query(
         **query_params,
         ProjectionExpression="id, #n, description, version, is_release_version, schema_version",
         ExpressionAttributeNames={"#n": "name"},
