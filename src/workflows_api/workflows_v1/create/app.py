@@ -1,9 +1,4 @@
-import os
-from functools import lru_cache
-from typing import Any
-
 from aws_lambda_powertools import Logger, Tracer
-from aws_lambda_powertools.utilities.typing import LambdaContext
 from jsonschema import Draft202012Validator, FormatChecker
 
 from apis.middleware import api_middleware_v1
@@ -14,8 +9,7 @@ from apis.models import (
     BadRequest,
     json_schema_validation,
 )
-from aws_utils import get_boto3_resource
-from database.connectors import list_connectors, read_connector
+from database.connectors import find_connector_by_id, list_connectors
 from database.workflows import create_workflow
 
 from local import WorkflowsV1Create
@@ -23,38 +17,6 @@ from local import WorkflowsV1Create
 
 logger = Logger()
 tracer = Tracer()
-
-TABLE_NAME = os.getenv("TABLE_NAME")
-
-dynamodb_table = get_boto3_resource("dynamodb").Table(TABLE_NAME)
-
-
-@lru_cache
-def read_connector_cached(tenant_id: str, connector_id: str) -> dict:
-    return read_connector(
-        table_resource=dynamodb_table,
-        tenant_id=tenant_id,
-        connector_id=connector_id,
-    )
-
-
-def find_connector_by_id(
-    tenant_id: str, connector_id: str, connectors_list: list[dict]
-) -> dict[str, Any]:
-    """Return a connector object in a list of connectors using the provided ID.
-    Reference ``ConnectorsListItem`` for object attributes.
-    """
-    if next(
-        (i for i in connectors_list if i["id"] == connector_id),
-        None,
-    ):
-        return read_connector_cached(tenant_id=tenant_id, connector_id=connector_id)
-    else:
-        raise BadRequest(
-            error_code="InvalidConnectorId",
-            description="An invalid connector was provided",
-            details={"id": connector_id},
-        )
 
 
 def find_item_by_key(items: list[dict], key: str, value: str) -> dict:
@@ -64,14 +26,15 @@ def find_item_by_key(items: list[dict], key: str, value: str) -> dict:
 
 
 @api_middleware_v1(input_validator=WorkflowsV1Create, output_validator=CreatedResponse)
-def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResponse:
+def lambda_handler(event: ApiMiddlewareEvent, context) -> ApiResponse:
     logger.append_keys(tenant_id=event.tenant_id)
+
     tenant_id = event.tenant_id
     workflow_data = event.model_data
 
     # Get the list of all current connectors
     # The 'type' is included in this return.
-    current_tenant_connectors = list_connectors(dynamodb_table, tenant_id)
+    current_tenant_connectors = list_connectors(tenant_id)
     logger.debug(current_tenant_connectors or "No connectors found for this tenant")
 
     """List response items:

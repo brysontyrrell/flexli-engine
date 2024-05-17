@@ -1,13 +1,20 @@
+from functools import lru_cache
+import os
 import time
 
 from boto3.dynamodb.conditions import Attr, Key
 from botocore.exceptions import ClientError
 from ulid import ULID
 
-from apis.models import NotFound
+from apis.models import BadRequest, NotFound
+from aws_utils import get_boto3_resource
+
+TABLE_NAME = os.getenv("TABLE_NAME")
+
+dynamodb_table = get_boto3_resource("dynamodb").Table(TABLE_NAME)
 
 
-def create_connector(table_resource, tenant_id: str, data: dict) -> str:
+def create_connector(tenant_id: str, data: dict) -> str:
     """Write a new connector for a tenant to the database.
 
     Database write generates the ID and a context key containing lists of the event and action types.
@@ -27,7 +34,7 @@ def create_connector(table_resource, tenant_id: str, data: dict) -> str:
     except (KeyError, TypeError):
         pass
 
-    table_resource.put_item(
+    dynamodb_table.put_item(
         Item=dict(
             {
                 "pk": f"T#{tenant_id}#C#{connector_id}",
@@ -49,9 +56,9 @@ def create_connector(table_resource, tenant_id: str, data: dict) -> str:
     return connector_id
 
 
-def read_connector(table_resource, tenant_id: str, connector_id: str) -> dict:
+def read_connector(tenant_id: str, connector_id: str) -> dict:
     """Read a connector for a tenant from the database."""
-    response = table_resource.get_item(
+    response = dynamodb_table.get_item(
         Key={"pk": f"T#{tenant_id}#C#{connector_id}", "sk": "A"}
     )
     try:
@@ -60,11 +67,17 @@ def read_connector(table_resource, tenant_id: str, connector_id: str) -> dict:
         raise NotFound("Connector not found", details={"id": connector_id})
 
 
-def delete_connector(table_resource, tenant_id: str, connector_id: str) -> None:
+# TODO: Switch to TLRU caching
+@lru_cache
+def read_connector_cached(tenant_id: str, connector_id: str) -> dict:
+    return read_connector(tenant_id=tenant_id, connector_id=connector_id)
+
+
+def delete_connector(tenant_id: str, connector_id: str) -> None:
     """Delete a connector for a tenant from the database."""
     # TODO: Must ensure connector is not linked to ANY workflows to be allowed!
     try:
-        table_resource.delete_item(
+        dynamodb_table.delete_item(
             Key={"pk": f"T#{tenant_id}#C#{connector_id}", "sk": "A"},
             ConditionExpression=Attr("sk").exists(),
         )
@@ -75,10 +88,29 @@ def delete_connector(table_resource, tenant_id: str, connector_id: str) -> None:
             raise
 
 
-def list_connectors(table_resource, tenant_id: str) -> list[dict]:
+def list_connectors(tenant_id: str) -> list[dict]:
     """List connectors for a tenant from the database."""
-    response = table_resource.query(
+    response = dynamodb_table.query(
         IndexName="LSI1",
         KeyConditionExpression=Key("lsi1pk").eq(f"T#{tenant_id}#C"),
     )
     return response["Items"]
+
+
+def find_connector_by_id(
+    tenant_id: str, connector_id: str, connectors_list: list[dict]
+) -> dict:
+    """Return a (cached) connector object in a list of connectors using the provided ID.
+    Reference ``ConnectorsListItem`` for object attributes.
+    """
+    if next(
+        (i for i in connectors_list if i["id"] == connector_id),
+        None,
+    ):
+        return read_connector_cached(tenant_id=tenant_id, connector_id=connector_id)
+    else:
+        raise BadRequest(
+            error_code="InvalidConnectorId",
+            description="An invalid connector was provided",
+            details={"id": connector_id},
+        )

@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 from datetime import datetime, timedelta
 
-# from functools import lru_cache
 import json
 import os
 import posixpath
@@ -25,7 +24,7 @@ from ulid import ULID
 import flexli_globals
 from aws_utils import get_boto3_client, get_boto3_resource
 from conditions import ConditionEvaluator
-from database.connectors import read_connector
+from database.connectors import read_connector_cached
 from database.workflows import read_workflow_version
 from transforms import TransformError, transform
 
@@ -70,14 +69,6 @@ class ConditionFailedFail(WorkflowError):
 
 class ConditionFailedStop(WorkflowError):
     pass
-
-
-# TODO: Fix your bug that's mutating the cached response
-# @lru_cache
-def read_connector_cached(tenant_id: str, connector_id: str) -> dict:
-    return read_connector(
-        table_resource=main_table, tenant_id=tenant_id, connector_id=connector_id
-    )
 
 
 class FlexliCoreV1:
@@ -433,9 +424,11 @@ class WorkflowRunnerV1:
                 )
 
             else:
-                action_connector = read_connector_cached(
-                    tenant_id=self.tenant_id,
-                    connector_id=action["connector_id"],
+                action_connector = copy.deepcopy(
+                    read_connector_cached(
+                        tenant_id=self.tenant_id,
+                        connector_id=action["connector_id"],
+                    )
                 )
 
                 # Find matching action
