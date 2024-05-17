@@ -1,6 +1,6 @@
 import pytest
 
-from src.workflows_api.workflows_v1.create.local import (
+from src.layers.layer.shared_models.workflows_v1_write import (
     CoreV1ScheduleParams,
 )
 
