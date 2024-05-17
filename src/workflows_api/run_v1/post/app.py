@@ -29,6 +29,8 @@ sqs_client = get_boto3_client("sqs")
 
 @api_middleware_v1(output_validator=CreatedResponse)
 def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResponse:
+    logger.append_keys(tenant_id=event.tenant_id)
+
     workflow_id = event.source_event.path_parameters["workflow_id"]
     workflow_version = int(event.source_event.path_parameters.get("version"))
 
@@ -45,7 +47,6 @@ def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResp
     # TODO: This code is shared ith the Backend Runner and needs to be in a module
 
     workflow_data = read_workflow_version(
-        dynamodb_table,
         tenant_id=event.tenant_id,
         workflow_id=workflow_id,
         workflow_version=workflow_version,
@@ -59,7 +60,7 @@ def lambda_handler(event: ApiMiddlewareEvent, context: LambdaContext) -> ApiResp
                     error_code="ConditionFailed",
                     description="The source condition failed.",
                 )
-        # TODO: Perform a transform is present
+        # TODO: Perform a transform if present
 
     new_run_id = str(ULID())
 
