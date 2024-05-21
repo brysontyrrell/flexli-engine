@@ -197,5 +197,5 @@ def lambda_handler(event: ApiMiddlewareEvent, context) -> ApiResponse:
 
     return ApiResponse(
         201,
-        {"id": new_workflow_id, "href": f"/v1/workflows/{new_workflow_id}"},
+        {"id": new_workflow_id, "href": f"/v1/workflows/{new_workflow_id}/version/1"},
     )
