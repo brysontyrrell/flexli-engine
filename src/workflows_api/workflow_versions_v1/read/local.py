@@ -13,6 +13,7 @@ class SourceRead(BaseModel):
     connector_type: str
     type: str
     condition: Optional[Condition] = None
+    parameters: Optional[dict] = None
     transform: Optional[dict[str, Union[StrictBool, Decimal, int, str]]] = None
 
 
