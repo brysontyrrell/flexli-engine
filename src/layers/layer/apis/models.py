@@ -149,11 +149,15 @@ def model_validation_error_path(error_details: ErrorDetails) -> str:
     for i in error_details["loc"]:
         if isinstance(i, int):
             path += f"[{i}]"
-        elif i.startswith(("__root__", "Connector", "Workflow", "Query")):
+        elif i.startswith(
+            ("__root__", "Connector", "Workflow", "Query", "Flexli:CoreV1:")
+        ):
             continue
         elif i.startswith("tagged-union["):
-            name = error_details["ctx"]["discriminator"].strip("'")
-            path += f".{name}"
+            # TODO: This is changed as of Pydantic 2.7
+            if ctx := error_details.get("ctx"):
+                name = ctx["discriminator"].strip("'")
+                path += f".{name}"
         else:
             path += f".{i}"
     return path.lstrip(".")
