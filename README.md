@@ -1,5 +1,10 @@
 # Flexli Engine
 
+> [!IMPORTANT]
+> July 2024 - This version of the workflow engine is designed for AWS as a hosted service.
+> 
+> This codebase is being ported to an agnostic format that can run in any cloud or on your own hosts. Stay tuned for more details. 
+
 Flexli Engine is a flexible, extensible, event-driven workflow engine that allows users to connect APIs from different providers into meaningful integrations without writing, deploying, and maintaining their own code.
 
 If you want to jump into "What is this?" and "How does it work?" you should explore either:
